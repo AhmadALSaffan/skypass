@@ -22,6 +22,9 @@ android {
             optimization {
                 enable = true
             }
+            // No release keystore yet: sign with the debug key so the APK installs and Google
+            // sign-in matches the SHA-1 registered for it. Swap in a real key before any store upload.
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 }

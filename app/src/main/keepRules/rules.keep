@@ -10,3 +10,6 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+# Type-safe navigation finds enum route arguments (TripLeg, Cabin…) by their class name at run
+# time, so R8 must keep the model enums under their real names.
+-keep enum com.skypass.core.model.** { *; }

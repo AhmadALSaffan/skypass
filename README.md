@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/logo.png" alt="Skypass" width="22%" />
+<img src="docs/logo.png" alt="Skypass app icon" width="15%" />
 
 # Skypass
 ### Search a flight, choose every seat, and watch your boarding pass print

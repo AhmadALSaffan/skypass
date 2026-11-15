@@ -15,7 +15,7 @@
 
 <br />
 
-<img src="docs/gifs/skypass-showcase.gif" alt="Skypass demo: animated onboarding and search, the boarding pass printing, and Explore" width="100%" />
+<img src="docs/gifs/skypass-demo.gif" alt="Skypass demo: animated onboarding and search, the boarding pass printing, and Explore" width="100%" />
 
 </div>
 

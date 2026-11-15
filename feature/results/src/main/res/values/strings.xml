@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="results_subtitle">%1$s · %2$s · %3$s</string>
+    <plurals name="results_adults">
+        <item quantity="one">%d adult</item>
+        <item quantity="other">%d adults</item>
+    </plurals>
+    <string name="results_return_leg">Return flight</string>
+    <string name="results_filters">Filters</string>
+    <string name="results_cheapest">Cheapest</string>
+    <string name="results_fastest">Fastest</string>
+    <string name="results_earliest">Earliest</string>
+    <plurals name="results_count">
+        <item quantity="one">%d flight</item>
+        <item quantity="other">%d flights</item>
+    </plurals>
+
+    <string name="results_best_value">Best value</string>
+    <string name="results_save">Save flight</string>
+    <string name="results_unsave">Remove from saved</string>
+    <string name="results_nonstop">Nonstop</string>
+    <plurals name="results_stops">
+        <item quantity="one">%1$d stop · %2$s</item>
+        <item quantity="other">%1$d stops · %2$s</item>
+    </plurals>
+    <string name="results_date">Date</string>
+    <string name="results_boards">Boards</string>
+    <string name="results_gate">Gate</string>
+    <string name="results_class">Class</string>
+    <string name="results_per_person">/ person</string>
+    <string name="results_select">Select flight</string>
+    <string name="results_select_adults">Select · %d adults</string>
+    <string name="results_select_outbound">Select outbound</string>
+    <string name="results_card_description">%1$s %2$s, departs %3$s from %4$s, arrives %5$s in %6$s, %7$s, %8$s. %9$s per person.</string>
+
+    <string name="results_empty_title">No flights on %1$s</string>
+    <string name="results_empty_body">Try another day in the strip above.</string>
+    <string name="results_empty_filtered">No flights match your filters.</string>
+    <string name="results_clear_filters">Clear filters</string>
+    <string name="results_error_title">Couldn\'t load flights</string>
+    <string name="results_error_body">Check your connection and try again.</string>
+    <string name="results_retry">Try again</string>
+    <string name="results_save_failed">Couldn\'t update your saved flights.</string>
+
+    <string name="results_filter_stops">Stops</string>
+    <string name="results_filter_nonstop">Nonstop only</string>
+    <string name="results_filter_airlines">Airlines</string>
+    <string name="results_filter_time">Departure time</string>
+    <string name="results_morning">Morning</string>
+    <string name="results_afternoon">Afternoon</string>
+    <string name="results_evening">Evening</string>
+    <string name="results_reset">Reset</string>
+    <plurals name="results_show">
+        <item quantity="one">Show %d flight</item>
+        <item quantity="other">Show %d flights</item>
+    </plurals>
+</resources>

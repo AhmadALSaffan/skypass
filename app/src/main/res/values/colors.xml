@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="skypass_white">#FFFFFFFF</color>
+    <color name="skypass_teal">#FF0F5B56</color>
+    <color name="skypass_canvas">#FFF2F3F8</color>
+    <color name="skypass_night">#FF0E1226</color>
+</resources>

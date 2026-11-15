@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="booking_title">Booking details</string>
+    <string name="booking_step">1 / 2</string>
+    <string name="booking_outbound">Outbound</string>
+    <string name="booking_return">Return</string>
+    <string name="booking_nonstop">Nonstop</string>
+    <string name="booking_via">via %1$s</string>
+
+    <string name="booking_passenger">Passenger</string>
+    <string name="booking_passengers">Passengers</string>
+    <string name="booking_adult_passport">Adult · Passport •••• %1$s</string>
+    <string name="booking_adult_no_passport">Adult · Add passport details</string>
+    <string name="booking_edit">Edit</string>
+    <plurals name="booking_more_passengers">
+        <item quantity="one">+ %d more passenger</item>
+        <item quantity="other">+ %d more passengers</item>
+    </plurals>
+    <string name="booking_add_details">Add details</string>
+    <string name="booking_add_traveller">Add the traveller</string>
+
+    <string name="booking_choose_seat">Choose your seat</string>
+    <string name="booking_aisle">Aisle</string>
+    <string name="booking_free">Free</string>
+    <string name="booking_legroom">Legroom</string>
+    <string name="booking_yours">Yours</string>
+    <string name="booking_taken">Taken</string>
+    <string name="booking_seat_standard">%1$s · standard seat · included in fare</string>
+    <string name="booking_seat_legroom">%1$s · extra legroom · +%2$s</string>
+    <string name="booking_seat_cabin">%1$s · %2$s seat · included in fare</string>
+    <string name="booking_seat_description">Seat %1$s, %2$s</string>
+    <string name="booking_seat_free">available</string>
+    <string name="booking_seat_free_legroom">extra legroom, plus %1$s</string>
+    <string name="booking_seat_taken">taken</string>
+    <string name="booking_seat_selected">selected</string>
+
+    <string name="booking_bags">Checked bags</string>
+    <string name="booking_bags_note">23 kg · %1$s each</string>
+    <string name="booking_bags_note_round">23 kg · %1$s each, per flight</string>
+    <string name="booking_fewer_bags">Fewer bags</string>
+    <string name="booking_more_bags">More bags</string>
+
+    <string name="booking_total">Total</string>
+    <string name="booking_continue">Continue to payment</string>
+
+    <string name="booking_editor_title">Passenger details</string>
+    <string name="booking_editor_hint">Exactly as on the passport. The airline needs these before you fly.</string>
+    <string name="booking_first_name">First name</string>
+    <string name="booking_last_name">Last name</string>
+    <string name="booking_gender">Gender</string>
+    <string name="booking_gender_female">Female</string>
+    <string name="booking_gender_male">Male</string>
+    <string name="booking_gender_unspecified">X</string>
+    <string name="booking_passport_type">Passport type</string>
+    <string name="booking_passport_ordinary">Ordinary (P)</string>
+    <string name="booking_passport_diplomatic">Diplomatic (D)</string>
+    <string name="booking_passport_service">Service (S)</string>
+    <string name="booking_passport_official">Official (O)</string>
+    <string name="booking_passport_number">Passport number</string>
+    <string name="booking_issue_date">Issue date</string>
+    <string name="booking_expiry_date">Expiry date</string>
+    <string name="booking_pick_date">Pick a date</string>
+    <string name="booking_phone">Phone number</string>
+    <string name="booking_email">Email</string>
+    <string name="booking_ok">OK</string>
+    <string name="booking_cancel">Cancel</string>
+    <string name="booking_editor_save">Save traveller</string>
+    <string name="booking_problem_required">Required</string>
+    <string name="booking_problem_invalid">Check this</string>
+    <string name="booking_problem_not_issued">Can\'t be in the future</string>
+    <string name="booking_problem_before_issue">Must be after the issue date</string>
+    <string name="booking_problem_expires_before_trip">Expires before your trip</string>
+    <string name="booking_problem_six_months">Must be valid 6 months after your trip</string>
+    <string name="booking_details_needed">Complete passenger details</string>
+    <string name="booking_passport_gender">Passport •••• %1$s · %2$s</string>
+    <string name="booking_complete">Complete</string>
+    <string name="booking_cabin_rows">%1$s · rows %2$d–%3$d</string>
+    <string name="booking_seat_selected_by">%1$s\'s seat</string>
+    <string name="booking_save_failed">Couldn\'t save the traveller. Try again.</string>
+
+    <string name="booking_error_title">Couldn\'t load your flight</string>
+    <string name="booking_error_body">Check your connection and try again.</string>
+    <string name="booking_retry">Try again</string>
+</resources>

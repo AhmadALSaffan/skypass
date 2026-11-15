@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="confirmation_preparing">Preparing your boarding pass…</string>
+    <string name="confirmation_printing">Printing boarding pass %1$d of %2$d</string>
+    <string name="confirmation_title">You\'re all set</string>
+    <string name="confirmation_booking_prefix">"Booking "</string>
+    <string name="confirmation_booking_suffix">" is confirmed."</string>
+    <string name="confirmation_emailed">" We sent your e-ticket to %1$s."</string>
+    <string name="confirmation_wallet">Add to Google Wallet</string>
+    <string name="confirmation_wallet_soon">Google Wallet passes are coming soon.</string>
+    <string name="confirmation_share">Share</string>
+    <string name="confirmation_home">Back to home</string>
+    <string name="confirmation_load_error">Couldn\'t load your boarding pass</string>
+    <string name="confirmation_retry">Try again</string>
+</resources>

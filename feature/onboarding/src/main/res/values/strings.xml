@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get started</string>
+    <string name="onboarding_step">%1$02d / %2$02d</string>
+
+    <string name="onboarding_1_title">Find flights that fit your plans</string>
+    <string name="onboarding_1_body">Compare airlines in one search, with prices, stops and times side by side.</string>
+    <string name="onboarding_2_title">Every result is a boarding pass</string>
+    <string name="onboarding_2_body">See the gate, cabin, duration and price before you tap Book.</string>
+    <string name="onboarding_3_title">Your trips stay in your pocket</string>
+    <string name="onboarding_3_body">Saved flights and boarding passes are available offline, with live gate alerts.</string>
+
+    <!-- What the animations end on, for screen readers. -->
+    <string name="onboarding_1_visual">A dotted flight path from New York JFK to Paris CDG, with a boarding pass for gate A12, seat 14C, from 612 dollars.</string>
+    <string name="onboarding_2_visual">A flight result from Dubai to Tokyo unfolds into a boarding pass showing gate B22, seat 14C and a price of 845 dollars.</string>
+    <string name="onboarding_3_visual">A boarding pass from London to New York saved on a phone that is offline, with an alert that the gate changed to B24.</string>
+</resources>

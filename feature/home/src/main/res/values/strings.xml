@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_good_morning">Good morning</string>
+    <string name="home_good_afternoon">Good afternoon</string>
+    <string name="home_good_evening">Good evening</string>
+    <string name="home_guest">Guest traveller</string>
+    <string name="home_notifications">Notifications</string>
+    <string name="home_title">Where are you\nflying next?</string>
+
+    <string name="home_one_way">One way</string>
+    <string name="home_round_trip">Round trip</string>
+    <string name="home_multi_city">Multi-city</string>
+    <string name="home_from">From</string>
+    <string name="home_to">To</string>
+    <string name="home_swap">Swap airports</string>
+    <string name="home_depart">Depart</string>
+    <string name="home_return">Return</string>
+    <string name="home_add_return">+ Add return</string>
+    <string name="home_adults">Adults</string>
+    <string name="home_fewer_adults">Fewer adults</string>
+    <string name="home_more_adults">More adults</string>
+    <string name="home_cabin">Cabin</string>
+    <string name="home_search">Search flights</string>
+    <string name="home_near_you">Near you</string>
+    <string name="home_cabin_economy_note">Standard seat, carry-on included</string>
+    <string name="home_cabin_premium_note">Extra legroom, priority boarding</string>
+    <string name="home_cabin_business_note">Lie-flat seat, lounge access</string>
+    <string name="home_cabin_first_note">Private suite, dine on demand</string>
+    <string name="home_route_description">From %1$s %2$s to %3$s %4$s</string>
+
+    <string name="home_upcoming">Upcoming trip</string>
+    <string name="home_see_all">See all</string>
+    <string name="home_no_trip_title">No trips yet</string>
+    <string name="home_no_trip_body">Book a flight and its boarding pass lands here, with live gate alerts.</string>
+    <string name="home_boards">Boards</string>
+    <string name="home_gate">Gate</string>
+    <string name="home_seat">Seat</string>
+    <string name="home_on_time">On time</string>
+    <string name="home_delayed">Delayed %1$d min</string>
+    <string name="home_boarding">Boarding</string>
+    <string name="home_departed">Departed</string>
+    <string name="home_cancelled">Cancelled</string>
+    <string name="home_trip_description">%1$s %2$s from %3$s to %4$s on %5$s. Boards %6$s, gate %7$s, seat %8$s. %9$s.</string>
+
+    <string name="home_popular_from">Popular from %1$s</string>
+    <string name="home_from_price">from %1$s</string>
+    <string name="home_photo_label">photo · %1$s</string>
+
+    <string name="home_offline_title">Can\'t reach Skypass</string>
+    <string name="home_offline_body">Check your connection, then try again.</string>
+    <string name="home_retry">Try again</string>
+
+    <string name="home_pick_from">Flying from</string>
+    <string name="home_pick_to">Flying to</string>
+    <string name="home_pick_search">Search cities, countries, airports</string>
+    <string name="home_pick_empty">No airports match \"%1$s\"</string>
+    <string name="home_ok">OK</string>
+    <string name="home_cancel">Cancel</string>
+</resources>

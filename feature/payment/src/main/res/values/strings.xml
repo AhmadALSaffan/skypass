@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="payment_title">Payment</string>
+    <string name="payment_step">2 / 2</string>
+    <string name="payment_method">Payment method</string>
+    <string name="payment_card_holder">Card holder</string>
+    <string name="payment_expires">Expires</string>
+    <string name="payment_promo">Promo code</string>
+    <string name="payment_apply">Apply</string>
+    <string name="payment_promo_invalid">That code isn\'t valid.</string>
+    <string name="payment_promo_network">Couldn\'t check the code. Try again.</string>
+    <string name="payment_remove_promo">Remove promo code</string>
+    <string name="payment_summary">Price summary</string>
+    <plurals name="payment_fare">
+        <item quantity="one">Fare × %d</item>
+        <item quantity="other">Fare × %d</item>
+    </plurals>
+    <string name="payment_promo_line">Promo %1$s</string>
+    <string name="payment_taxes">Taxes &amp; fees</string>
+    <string name="payment_seats">Seats %1$s</string>
+    <string name="payment_included">Included</string>
+    <plurals name="payment_bags">
+        <item quantity="one">Checked bags × %d</item>
+        <item quantity="other">Checked bags × %d</item>
+    </plurals>
+    <string name="payment_total">Total</string>
+    <string name="payment_pay">Pay %1$s</string>
+    <string name="payment_processing">Processing…</string>
+    <string name="payment_paid">Paid ✓</string>
+    <string name="payment_secure">Payments are encrypted end to end</string>
+    <string name="payment_error_seat">A seat you picked was just taken. Go back and choose another.</string>
+    <string name="payment_error_promo">The promo code is no longer valid, so it was removed. Tap Pay to continue.</string>
+    <string name="payment_error_network">You\'re offline. Nothing was charged; try again.</string>
+    <string name="payment_error_other">Payment didn\'t go through. Nothing was charged; try again.</string>
+    <string name="payment_load_error">Couldn\'t load your booking</string>
+    <string name="payment_retry">Try again</string>
+</resources>

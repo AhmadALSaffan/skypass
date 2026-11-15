@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="explore_title">Explore</string>
+    <string name="explore_search_hint">Search cities, countries, airports</string>
+    <string name="explore_clear_search">Clear search</string>
+    <string name="explore_flights">Flights</string>
+    <string name="explore_hotels">Hotels</string>
+    <string name="explore_cars">Car rental</string>
+    <string name="explore_deal">Deal</string>
+    <string name="explore_nonstop_route">Nonstop %1$s → %2$s</string>
+    <string name="explore_route">%1$s → %2$s</string>
+    <string name="explore_from">from</string>
+    <string name="explore_country_price">%1$s · from %2$s</string>
+    <string name="explore_from_origin">Fares from %1$s</string>
+    <string name="explore_airports">Airports</string>
+    <string name="explore_fly_to">Fly to %1$s</string>
+    <string name="explore_empty_title">Nothing matches yet</string>
+    <string name="explore_empty_body">Try another city, or a different category.</string>
+    <string name="explore_offline_title">Can\'t load destinations</string>
+    <string name="explore_offline_body">Check your connection and try again.</string>
+    <string name="explore_retry">Try again</string>
+    <string name="explore_photo">photo</string>
+</resources>

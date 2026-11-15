@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sign_in_title">Welcome aboard</string>
+    <string name="sign_in_body">Sign in to search flights, keep your boarding passes and get gate alerts.</string>
+    <string name="sign_in_google">Continue with Google</string>
+    <string name="sign_in_signing_in">Signing in…</string>
+    <string name="sign_in_guest">Continue as guest</string>
+    <string name="sign_in_continue">Continue to Skypass</string>
+    <string name="sign_in_another_account">Use another account</string>
+    <string name="sign_in_signed_in_as">Signed in as %1$s</string>
+    <string name="sign_in_legal_prefix">"By continuing you agree to the "</string>
+    <string name="sign_in_terms">Terms</string>
+    <string name="sign_in_legal_and">" and "</string>
+    <string name="sign_in_privacy">Privacy Policy</string>
+
+    <string name="sign_in_problem_offline">You\'re offline. Check your connection and try again.</string>
+    <string name="sign_in_problem_no_account">Add a Google account to this phone, or continue as a guest.</string>
+    <string name="sign_in_problem_not_configured">Google sign-in isn\'t set up for this build yet.</string>
+    <string name="sign_in_problem_guest">Guest access is switched off right now. Continue with Google instead.</string>
+    <string name="sign_in_problem_other">Couldn\'t sign you in. Please try again.</string>
+
+    <string name="sign_in_tiles_description">Destinations: New York, Paris, Dubai, Tokyo and London.</string>
+</resources>

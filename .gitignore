@@ -1,0 +1,33 @@
+# Secrets: never commit
+local.properties
+google-services.json
+*.jks
+*.keystore
+.env*
+
+# Build output
+build/
+.gradle/
+.kotlin/
+
+# Android
+/captures
+.externalNativeBuild
+.cxx
+
+# IDE / OS
+*.iml
+.idea/workspace.xml
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.DS_Store
+
+# Supabase local
+supabase/.temp/
+supabase/.branches/
+
+# Design board (kept local)
+Flight booking app design/

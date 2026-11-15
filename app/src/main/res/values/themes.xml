@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Skypass" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/skypass_canvas</item>
+    </style>
+
+    <!-- Android 12+ splash: white with the teal Skypass wordmark, then hands over to Theme.Skypass. -->
+    <style name="Theme.Skypass.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/skypass_white</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.Skypass</item>
+    </style>
+</resources>

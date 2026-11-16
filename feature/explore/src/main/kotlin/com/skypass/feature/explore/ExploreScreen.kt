@@ -97,8 +97,10 @@ import com.skypass.core.model.ExploreCategory
 import java.text.NumberFormat
 import java.util.Locale
 
-internal fun usd(amount: Int): String =
-    NumberFormat.getCurrencyInstance(Locale.US).apply { maximumFractionDigits = 0 }.format(amount)
+/** In the traveller's currency (Settings), from US dollars. */
+@androidx.compose.runtime.Composable
+@androidx.compose.runtime.ReadOnlyComposable
+internal fun usd(amount: Int): String = com.skypass.core.designsystem.theme.money(amount)
 
 @Composable
 fun ExploreRoute(
@@ -352,6 +354,7 @@ private fun DealCard(deal: Deal, onClick: () -> Unit, modifier: Modifier = Modif
         stringResource(R.string.explore_route, deal.originCode, deal.destinationCode)
     }
     val from = stringResource(R.string.explore_from)
+    val price = usd(deal.fromPriceUsd)
     Column(
         modifier
             .pressScale(interaction, pressed = 0.98f)
@@ -359,7 +362,7 @@ private fun DealCard(deal: Deal, onClick: () -> Unit, modifier: Modifier = Modif
             .clip(Shapes.hero)
             .background(colors.surface)
             .clickable(interaction, null, role = Role.Button, onClick = onClick)
-            .clearAndSetSemantics { contentDescription = "${deal.title}. $route, $from ${usd(deal.fromPriceUsd)}" },
+            .clearAndSetSemantics { contentDescription = "${deal.title}. $route, $from $price" },
     ) {
         var photoShown by remember { mutableStateOf(false) }
         Box(Modifier.fillMaxWidth().height(140.dp).then(if (photoShown) Modifier else Modifier.stripes(Color(deal.tone)))) {

@@ -64,8 +64,8 @@ internal class SupabaseAuthRepository @Inject constructor(
     override suspend fun signOut() {
         runCatching { supabase.auth.signOut() }
             .onFailure { if (it is CancellationException) throw it }
-        // The next account must not see this one's trip.
-        preferences.setCachedUpcomingTrip(null)
+        // The next account must not see this one's trip or inherit its settings.
+        preferences.clearAccountCaches()
     }
 
     private suspend fun attempt(block: suspend () -> Unit): Outcome<UserSession, AuthError> = try {

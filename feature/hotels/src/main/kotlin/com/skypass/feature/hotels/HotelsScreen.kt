@@ -90,8 +90,10 @@ import java.text.NumberFormat
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-internal fun usd(amount: Int): String =
-    NumberFormat.getCurrencyInstance(Locale.US).apply { maximumFractionDigits = 0 }.format(amount)
+/** In the traveller's currency (Settings), from US dollars. */
+@androidx.compose.runtime.Composable
+@androidx.compose.runtime.ReadOnlyComposable
+internal fun usd(amount: Int): String = com.skypass.core.designsystem.theme.money(amount)
 
 private val DayMonth = DateTimeFormatter.ofPattern("d MMM", Locale.getDefault())
 private val Day = DateTimeFormatter.ofPattern("d", Locale.getDefault())

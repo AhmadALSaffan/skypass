@@ -225,7 +225,7 @@ private fun ExtraRow(extra: CarExtra, checked: Boolean, onToggle: () -> Unit) {
         }
         Text(stringResource(R.string.cars_extra_per_day, usd(extra.perDayUsd)), style = SkypassTheme.typography.labelMd, color = colors.ink)
         Box(Modifier.width(48.dp).height(28.dp), contentAlignment = Alignment.Center) {
-            SkypassToggle(checked = checked, onCheckedChange = { onToggle() })
+            SkypassToggle(checked = checked, onCheckedChange = null)
         }
     }
 }

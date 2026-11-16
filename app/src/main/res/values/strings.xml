@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">Skypass</string>
+
+    <string name="lock_title">Skypass is locked</string>
+    <string name="lock_body">Your trips, passports and cards stay private. Unlock with your fingerprint, face or screen lock.</string>
+    <string name="lock_unlock">Unlock</string>
+    <string name="lock_prompt_title">Unlock Skypass</string>
+    <string name="lock_prompt_subtitle">Confirm it\'s you</string>
+
+    <string name="channel_trips">Trip updates</string>
+    <string name="channel_trips_description">Booking confirmations and receipts</string>
+    <string name="channel_gate">Gate and delay alerts</string>
+    <string name="channel_gate_description">Live changes to the flights you\'ve booked</string>
+    <string name="channel_prices">Price drops</string>
+    <string name="channel_prices_description">Lower fares on routes you\'ve searched</string>
 </resources>

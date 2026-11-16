@@ -203,7 +203,9 @@ class HomeViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     travellerName = name,
-                    initials = session?.initials ?: "",
+                    // The name set in Personal information wins over the sign-in (guests have none).
+                    initials = name?.split(' ')?.filter { it.isNotBlank() }?.take(2)?.joinToString("") { it.first().uppercase() }
+                        ?.ifEmpty { null } ?: session?.initials ?: "",
                     isGuest = session?.isGuest == true,
                     search = it.search ?: createDefaultSearch(home, destination),
                     homeCity = home.city,

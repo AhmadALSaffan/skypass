@@ -48,7 +48,20 @@ internal class SupabaseEditProfileRepository @Inject constructor(
             }.decodeSingle<ProfileDto>().toModel()
         }
     }
+
+    override suspend fun updateHomeAirport(homeAirport: String): Outcome<UserProfile, AppError> {
+        val userId = supabase.signedInUserId() ?: return Outcome.Failure(AppError.Unauthorized)
+        return supabase.safeCall {
+            supabase.from("profiles").update(HomeAirportDto(homeAirport)) {
+                filter { eq("id", userId) }
+                select()
+            }.decodeSingle<ProfileDto>().toModel()
+        }
+    }
 }
+
+@kotlinx.serialization.Serializable
+private data class HomeAirportDto(@kotlinx.serialization.SerialName("home_airport") val homeAirport: String)
 
 internal class SupabaseSavedListRepository @Inject constructor(
     private val supabase: SupabaseClient,

@@ -1,6 +1,8 @@
 package com.skypass
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
@@ -23,6 +25,22 @@ class SkypassApplication : Application(), SingletonImageLoader.Factory {
         // Build the Supabase client (Ktor, serialization, Auth loading the saved session) while the
         // activity is still being created, so the splash screen has nothing left to wait for.
         Thread({ auth.get() }, "supabase-warm-up").start()
+        createNotificationChannels()
+    }
+
+    /** One channel per Settings switch, so travellers can also tune them in system settings. */
+    private fun createNotificationChannels() {
+        val manager = getSystemService(NotificationManager::class.java) ?: return
+        listOf(
+            Triple(CHANNEL_TRIPS, R.string.channel_trips, R.string.channel_trips_description) to NotificationManager.IMPORTANCE_DEFAULT,
+            Triple(CHANNEL_GATE, R.string.channel_gate, R.string.channel_gate_description) to NotificationManager.IMPORTANCE_HIGH,
+            Triple(CHANNEL_PRICES, R.string.channel_prices, R.string.channel_prices_description) to NotificationManager.IMPORTANCE_LOW,
+        ).forEach { (ids, importance) ->
+            val (id, name, description) = ids
+            manager.createNotificationChannel(
+                NotificationChannel(id, getString(name), importance).apply { this.description = getString(description) },
+            )
+        }
     }
 
     /**
@@ -41,7 +59,10 @@ class SkypassApplication : Application(), SingletonImageLoader.Factory {
             .build()
     }
 
-    private companion object {
-        const val USER_AGENT = "Skypass/${BuildConfig.VERSION_NAME} (Android; portfolio demo app)"
+    companion object {
+        const val CHANNEL_TRIPS = "trip_updates"
+        const val CHANNEL_GATE = "gate_alerts"
+        const val CHANNEL_PRICES = "price_drops"
+        private const val USER_AGENT = "Skypass/${BuildConfig.VERSION_NAME} (Android; portfolio demo app)"
     }
 }

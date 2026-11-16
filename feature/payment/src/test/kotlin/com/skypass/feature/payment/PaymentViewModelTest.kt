@@ -3,6 +3,9 @@ package com.skypass.feature.payment
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.skypass.core.domain.usecase.AddCardUseCase
+import com.skypass.core.domain.usecase.ObserveAppSettingsUseCase
+import com.skypass.core.testing.FakeAccountSettingsRepository
+import com.skypass.core.testing.FakeDeviceSettingsRepository
 import com.skypass.core.domain.usecase.CalculateBookingTotalUseCase
 import com.skypass.core.domain.usecase.CardField
 import com.skypass.core.domain.usecase.CardProblem
@@ -58,7 +61,18 @@ class PaymentViewModelTest {
         payForTrip = PayForTripUseCase(bookings),
         addCard = AddCardUseCase(cards, ValidateCardUseCase(clock)),
         validateCard = ValidateCardUseCase(clock),
+        observeSettings = ObserveAppSettingsUseCase(FakeAccountSettingsRepository(), devices),
     )
+
+    private val devices = FakeDeviceSettingsRepository()
+
+    @Test
+    fun `with the biometric lock on, the screen asks before paying`() = runTest {
+        val vm = viewModel()
+        assertEquals(false, vm.uiState.value.confirmWithBiometric)
+        devices.setBiometricLock(true)
+        assertEquals(true, vm.uiState.value.confirmWithBiometric)
+    }
 
     @Test
     fun `shows the board's summary, the saved cards (default first) and Google Pay`() {

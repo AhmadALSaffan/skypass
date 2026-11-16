@@ -46,10 +46,13 @@ dependencies {
     implementation(projects.feature.trips)
     implementation(projects.feature.profile)
     implementation(projects.feature.saved)
+    implementation(projects.feature.settings)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.biometric)
+    implementation(projects.core.ui)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

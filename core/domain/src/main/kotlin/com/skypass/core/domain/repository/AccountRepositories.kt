@@ -17,6 +17,8 @@ interface ProfileStatsRepository {
 /** Personal information: the traveller may change their name and home airport, nothing else. */
 interface EditProfileRepository {
     suspend fun update(fullName: String, homeAirport: String): Outcome<UserProfile, AppError>
+
+    suspend fun updateHomeAirport(homeAirport: String): Outcome<UserProfile, AppError>
 }
 
 /** Everything on the Saved tab, with the details each card needs. */

@@ -71,6 +71,13 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.skypass.core.ui.AddCardSheet
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import com.skypass.core.model.DisplayCurrency
+import com.skypass.core.designsystem.theme.money
+import com.skypass.core.designsystem.theme.LocalCurrency
+import com.skypass.core.ui.VerifyResult
+import com.skypass.core.ui.LocalUserVerifier
 import androidx.compose.ui.draw.clip
 import com.skypass.core.designsystem.component.PaymentLogo
 import com.skypass.core.designsystem.component.Eyebrow
@@ -97,7 +104,10 @@ import com.skypass.core.model.PaymentMethodType
 import java.text.NumberFormat
 import java.util.Locale
 
-internal fun usd(amount: Int): String = NumberFormat.getCurrencyInstance(Locale.US).apply { maximumFractionDigits = 0 }.format(amount)
+/** In the traveller's currency (Settings), from US dollars. */
+@androidx.compose.runtime.Composable
+@androidx.compose.runtime.ReadOnlyComposable
+internal fun usd(amount: Int): String = com.skypass.core.designsystem.theme.money(amount)
 
 private val PaperGold = Color(0xFFE9D8A6)
 private val CardTeal = Color(0xFF0F5B56)
@@ -111,6 +121,10 @@ fun PaymentRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val paid by rememberUpdatedState(onPaid)
+    val verifier = LocalUserVerifier.current
+    val scope = rememberCoroutineScope()
+    val confirmTitle = stringResource(R.string.payment_confirm_title)
+    val confirmSubtitle = stringResource(R.string.payment_confirm_subtitle, money(uiState.price.totalUsd))
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
@@ -118,7 +132,23 @@ fun PaymentRoute(
             }
         }
     }
-    PaymentScreen(uiState, viewModel::onEvent, onBack)
+    PaymentScreen(
+        uiState = uiState,
+        onEvent = { event ->
+            // With the biometric lock on, paying needs the person's fingerprint, face or screen lock.
+            if (event == PaymentEvent.Pay && uiState.confirmWithBiometric) {
+                scope.launch {
+                    when (verifier.verify(confirmTitle, confirmSubtitle)) {
+                        VerifyResult.Verified, VerifyResult.Unavailable -> viewModel.onEvent(event)
+                        VerifyResult.Cancelled -> Unit
+                    }
+                }
+            } else {
+                viewModel.onEvent(event)
+            }
+        },
+        onBack = onBack,
+    )
 }
 
 @Composable
@@ -387,6 +417,14 @@ private fun Summary(uiState: PaymentUiState, modifier: Modifier = Modifier) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.payment_total), style = SkypassTheme.typography.label, color = colors.ink, modifier = Modifier.weight(1f))
             Text(usd(animateCountUp(p.totalUsd, 450)), style = SkypassTheme.typography.figureSm, color = colors.ink)
+        }
+        // Shown in another currency: say what's actually charged.
+        if (LocalCurrency.current != DisplayCurrency.USD) {
+            Text(
+                stringResource(R.string.payment_charged_usd, DisplayCurrency.USD.format(p.totalUsd)),
+                style = SkypassTheme.typography.caption,
+                color = colors.text2,
+            )
         }
     }
 }

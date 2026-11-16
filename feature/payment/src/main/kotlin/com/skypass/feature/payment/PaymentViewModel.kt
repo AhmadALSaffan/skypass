@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skypass.core.domain.usecase.AddCardUseCase
+import com.skypass.core.domain.usecase.ObserveAppSettingsUseCase
 import com.skypass.core.domain.usecase.CalculateBookingTotalUseCase
 import com.skypass.core.domain.usecase.ValidateCardUseCase
 import com.skypass.core.model.CardDraft
@@ -59,6 +60,8 @@ data class PaymentUiState(
     val payError: BookingError? = null,
     /** The "Add a card" sheet, while open. */
     val cardForm: CardForm? = null,
+    /** Settings > Biometric lock also guards payments. */
+    val confirmWithBiometric: Boolean = false,
 ) {
     val method: PaymentMethod? get() = methods.getOrNull(selectedMethod)
     val seats: List<String> get() = legs.flatMap { leg -> leg.seats.map { it.code } }
@@ -95,6 +98,7 @@ class PaymentViewModel @Inject constructor(
     private val payForTrip: PayForTripUseCase,
     private val addCard: AddCardUseCase,
     private val validateCard: ValidateCardUseCase,
+    observeSettings: ObserveAppSettingsUseCase,
 ) : ViewModel() {
 
     private val args = PaymentArgs(savedStateHandle)
@@ -110,6 +114,9 @@ class PaymentViewModel @Inject constructor(
 
     init {
         load()
+        viewModelScope.launch {
+            observeSettings().collect { s -> _uiState.update { it.copy(confirmWithBiometric = s.device.biometricLock) } }
+        }
     }
 
     fun onEvent(event: PaymentEvent) {

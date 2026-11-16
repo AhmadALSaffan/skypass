@@ -68,6 +68,8 @@ import com.skypass.feature.profile.navigation.passengersScreen
 import com.skypass.feature.profile.navigation.profileScreen
 import com.skypass.feature.saved.navigation.SavedDestination
 import com.skypass.feature.saved.navigation.savedScreen
+import com.skypass.feature.settings.navigation.SettingsDestination
+import com.skypass.feature.settings.navigation.settingsScreen
 import com.skypass.feature.trips.navigation.TripsDestination
 import com.skypass.feature.trips.navigation.tripsScreen
 import kotlinx.serialization.Serializable
@@ -172,12 +174,10 @@ fun SkypassNavHost(startScreen: StartScreen) {
             )
             passengersScreen(onBack = { navController.popBackStack() })
             paymentMethodsScreen(onBack = { navController.popBackStack() })
-            composable<SettingsDestination> {
-                SettingsPlaceholder(
-                    onBack = { navController.popBackStack() },
-                    onSignedOut = { navController.replaceAll(SignInDestination) },
-                )
-            }
+            settingsScreen(
+                onBack = { navController.popBackStack() },
+                onSignedOut = { navController.replaceAll(SignInDestination) },
+            )
             resultsScreen(
                 onBack = { navController.popBackStack() },
                 onPickReturn = { navController.navigate(it) },

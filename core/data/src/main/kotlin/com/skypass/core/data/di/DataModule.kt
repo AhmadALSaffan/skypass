@@ -18,6 +18,8 @@ import com.skypass.core.data.repository.SupabaseSeatMapRepository
 import com.skypass.core.data.repository.SupabaseFlightSearchRepository
 import com.skypass.core.data.repository.SupabaseSavedFlightsRepository
 import com.skypass.core.data.repository.SupabaseEditProfileRepository
+import com.skypass.core.data.repository.DataStoreDeviceSettingsRepository
+import com.skypass.core.data.repository.SupabaseAccountSettingsRepository
 import com.skypass.core.data.repository.SupabaseMyTripsRepository
 import com.skypass.core.data.repository.SupabasePaymentCardRepository
 import com.skypass.core.data.repository.SupabaseProfileStatsRepository
@@ -43,6 +45,8 @@ import com.skypass.core.domain.repository.SavedFlightsRepository
 import com.skypass.core.domain.repository.LocationRepository
 import com.skypass.core.domain.repository.OnboardingRepository
 import com.skypass.core.domain.repository.EditProfileRepository
+import com.skypass.core.domain.repository.AccountSettingsRepository
+import com.skypass.core.domain.repository.DeviceSettingsRepository
 import com.skypass.core.domain.repository.MyTripsRepository
 import com.skypass.core.domain.repository.PaymentCardRepository
 import com.skypass.core.domain.repository.ProfileStatsRepository
@@ -124,6 +128,13 @@ internal abstract class DataModule {
 
     @Binds
     abstract fun bindMyTripsRepository(impl: SupabaseMyTripsRepository): MyTripsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAccountSettingsRepository(impl: SupabaseAccountSettingsRepository): AccountSettingsRepository
+
+    @Binds
+    abstract fun bindDeviceSettingsRepository(impl: DataStoreDeviceSettingsRepository): DeviceSettingsRepository
 
     @Binds
     abstract fun bindPaymentCardRepository(impl: SupabasePaymentCardRepository): PaymentCardRepository

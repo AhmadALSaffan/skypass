@@ -47,6 +47,14 @@ class FakeEditProfileRepository(var fail: Boolean = false) : EditProfileReposito
         updates += fullName to homeAirport
         return Outcome.Success(UserProfile("u-1", fullName, "tina.anderson@gmail.com", "Blue", homeAirport, 0))
     }
+
+    val homeAirports = mutableListOf<String>()
+
+    override suspend fun updateHomeAirport(homeAirport: String): Outcome<UserProfile, AppError> {
+        if (fail) return Outcome.Failure(AppError.Network)
+        homeAirports += homeAirport
+        return Outcome.Success(UserProfile("u-1", "Tina Anderson", "tina.anderson@gmail.com", "Blue", homeAirport, 0))
+    }
 }
 
 class FakeSavedListRepository(

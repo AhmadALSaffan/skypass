@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Settings</string>
+    <string name="settings_save_failed">That change didn\'t save, so it was put back. Check your connection and try again.</string>
+
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_push">Push notifications</string>
+    <string name="settings_push_sub">Trip updates and receipts</string>
+    <string name="settings_gate">Gate &amp; delay alerts</string>
+    <string name="settings_gate_sub">Live changes for booked flights</string>
+    <string name="settings_price">Price drop alerts</string>
+    <string name="settings_price_sub">For routes you have searched</string>
+
+    <string name="settings_preferences">Preferences</string>
+    <string name="settings_currency">Currency</string>
+    <string name="settings_currency_hint">Prices are shown in this currency. Flights are charged in US dollars.</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_english">English</string>
+    <string name="settings_home_airport">Home airport</string>
+    <string name="settings_home_airport_hint">Explore and Saved price fares from here when your location is off.</string>
+    <string name="settings_search">Search</string>
+    <string name="settings_search_hint">City, country or code</string>
+    <string name="settings_dark_mode">Dark mode</string>
+    <string name="settings_theme_hint">System follows your phone\'s setting.</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Off</string>
+    <string name="settings_theme_dark">On</string>
+
+    <string name="settings_security">Security</string>
+    <string name="settings_biometric">Biometric lock</string>
+    <string name="settings_biometric_sub">Unlock the app and confirm payments</string>
+    <string name="settings_biometric_unavailable">Set up a screen lock on your phone first</string>
+    <string name="settings_lock_confirm_on">Turn on the biometric lock</string>
+    <string name="settings_lock_confirm_off">Turn off the biometric lock</string>
+    <string name="settings_lock_confirm_subtitle">Confirm it\'s you</string>
+    <string name="settings_connected">Connected accounts</string>
+    <string name="settings_connected_hint">How you sign in to Skypass.</string>
+    <string name="settings_google">Google</string>
+    <string name="settings_guest">Guest</string>
+    <string name="settings_guest_account">Guest account</string>
+    <string name="settings_guest_detail">No account linked</string>
+    <string name="settings_guest_note">Guest trips live on this phone\'s session only. Sign out and they can\'t be recovered; sign in with Google to keep them everywhere.</string>
+    <string name="settings_google_note">Your trips, travellers and cards follow your Google account to any phone.</string>
+    <string name="settings_close">Close</string>
+
+    <string name="settings_sign_out">Sign out</string>
+    <string name="settings_signing_out">Signing out…</string>
+    <string name="settings_guest_sign_out_title">Sign out of a guest account?</string>
+    <string name="settings_guest_sign_out_body">Guest accounts can\'t be signed back into, so your trips, travellers and cards on it will be gone for good.</string>
+    <string name="settings_guest_sign_out_confirm">Sign out anyway</string>
+    <string name="settings_keep_signed_in">Stay signed in</string>
+</resources>

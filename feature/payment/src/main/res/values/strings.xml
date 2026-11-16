@@ -39,4 +39,7 @@
     <string name="payment_save_card">Save and use this card</string>
     <string name="payment_default">Default</string>
     <string name="payment_error_card">That card was declined or has expired. Choose another way to pay.</string>
+    <string name="payment_confirm_title">Confirm payment</string>
+    <string name="payment_confirm_subtitle">Pay %1$s with Skypass</string>
+    <string name="payment_charged_usd">Charged in US dollars: %1$s</string>
 </resources>

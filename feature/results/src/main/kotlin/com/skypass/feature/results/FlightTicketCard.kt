@@ -69,8 +69,10 @@ import java.util.Locale
 private val Time = DateTimeFormatter.ofPattern("HH:mm")
 private val ShortDate = DateTimeFormatter.ofPattern("d MMM")
 
-internal fun usd(amount: Int): String =
-    NumberFormat.getCurrencyInstance(Locale.US).apply { maximumFractionDigits = 0 }.format(amount)
+/** In the traveller's currency (Settings), from US dollars. */
+@androidx.compose.runtime.Composable
+@androidx.compose.runtime.ReadOnlyComposable
+internal fun usd(amount: Int): String = com.skypass.core.designsystem.theme.money(amount)
 
 internal fun duration(minutes: Int) = "${minutes / 60}h ${minutes % 60}m"
 

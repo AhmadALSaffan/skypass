@@ -125,11 +125,14 @@ private fun StepButton(glyph: String, label: String, enabled: Boolean, onClick: 
     }
 }
 
-/** 52×32 switch: teal when on, knob slides with a soft spring. */
+/**
+ * 52×32 switch: teal when on, knob slides with a soft spring. Pass a null [onCheckedChange] when a
+ * whole row is the switch (the row is then the touch target and the one accessibility node).
+ */
 @Composable
 fun SkypassToggle(
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
+    onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     val colors = SkypassTheme.colors
@@ -145,7 +148,7 @@ fun SkypassToggle(
             .height(32.dp)
             .clip(Shapes.pill)
             .background(track)
-            .toggleable(checked, role = Role.Switch, onValueChange = onCheckedChange),
+            .then(if (onCheckedChange != null) Modifier.toggleable(checked, role = Role.Switch, onValueChange = onCheckedChange) else Modifier),
         contentAlignment = Alignment.CenterStart,
     ) {
         Box(

@@ -17,6 +17,7 @@ import com.skypass.core.data.repository.SupabasePassengerRepository
 import com.skypass.core.data.repository.SupabaseSeatMapRepository
 import com.skypass.core.data.repository.SupabaseFlightSearchRepository
 import com.skypass.core.data.repository.SupabaseSavedFlightsRepository
+import com.skypass.core.data.repository.SupabaseMyTripsRepository
 import com.skypass.core.data.repository.SupabaseProfileRepository
 import com.skypass.core.data.repository.SupabaseTripRepository
 import com.skypass.core.domain.repository.AirportRepository
@@ -36,6 +37,7 @@ import com.skypass.core.domain.repository.FlightSearchRepository
 import com.skypass.core.domain.repository.SavedFlightsRepository
 import com.skypass.core.domain.repository.LocationRepository
 import com.skypass.core.domain.repository.OnboardingRepository
+import com.skypass.core.domain.repository.MyTripsRepository
 import com.skypass.core.domain.repository.ProfileRepository
 import com.skypass.core.domain.repository.TripRepository
 import dagger.Binds
@@ -109,6 +111,9 @@ internal abstract class DataModule {
 
     @Binds
     abstract fun bindProfileRepository(impl: SupabaseProfileRepository): ProfileRepository
+
+    @Binds
+    abstract fun bindMyTripsRepository(impl: SupabaseMyTripsRepository): MyTripsRepository
 
     companion object {
         /** The phone's clock; tests pass a fixed one. */

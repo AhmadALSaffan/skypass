@@ -8,6 +8,7 @@ import com.skypass.core.model.HotelReservation
 import com.skypass.core.model.Outcome
 import com.skypass.core.model.ReservationError
 import com.skypass.core.model.RoomType
+import com.skypass.core.model.StayDetails
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -31,6 +32,9 @@ class FakeHotelRepository(
     var reserveError: ReservationError? = null
     /** attemptId → reservation, like the server's idempotency key. */
     val reservations = linkedMapOf<String, HotelReservation>()
+
+    /** What each reservation was booked with, by attempt. */
+    val details = linkedMapOf<String, StayDetails>()
     val requestedCities = mutableListOf<String>()
 
     override suspend fun hotels(city: String): Outcome<List<Hotel>, AppError> {
@@ -44,15 +48,16 @@ class FakeHotelRepository(
         checkIn: LocalDate,
         checkOut: LocalDate,
         guests: Int,
+        details: StayDetails,
         attemptId: String,
     ): Outcome<HotelReservation, ReservationError> {
         reserveError?.let { return Outcome.Failure(it) }
         reservations[attemptId]?.let { return Outcome.Success(it) }
         val hotel = hotels.values.flatten().first { it.id == hotelId }
         val nights = ChronoUnit.DAYS.between(checkIn, checkOut).toInt()
-        val total = (hotel.pricePerNightUsd * room.factor).roundToInt() * nights
-        return HotelReservation("SKH${reservations.size + 1}AB", total, nights)
-            .also { reservations[attemptId] = it }
+        val nightly = (hotel.pricePerNightUsd * room.factor).roundToInt()
+        return HotelReservation("SKH${reservations.size + 1}AB", nightly * nights, nights, nightly)
+            .also { reservations[attemptId] = it; this.details[attemptId] = details }
             .let { Outcome.Success(it) }
     }
 }

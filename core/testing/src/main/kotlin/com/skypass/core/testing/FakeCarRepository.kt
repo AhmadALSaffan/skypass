@@ -4,6 +4,7 @@ import com.skypass.core.domain.repository.CarRepository
 import com.skypass.core.model.AppError
 import com.skypass.core.model.Car
 import com.skypass.core.model.CarReservation
+import com.skypass.core.model.DriverDetails
 import com.skypass.core.model.CarType
 import com.skypass.core.model.Outcome
 import com.skypass.core.model.Rental
@@ -31,6 +32,9 @@ class FakeCarRepository(
 ) : CarRepository {
     var reserveError: ReservationError? = null
     val reservations = linkedMapOf<String, CarReservation>()
+
+    /** What each rental was booked with, by attempt. */
+    val details = linkedMapOf<String, DriverDetails>()
     val requestedAirports = mutableListOf<String>()
 
     override suspend fun cars(airportCode: String): Outcome<List<Car>, AppError> {
@@ -38,12 +42,25 @@ class FakeCarRepository(
         return failure?.let { Outcome.Failure(it) } ?: Outcome.Success(cars[airportCode].orEmpty())
     }
 
-    override suspend fun reserve(car: Car, rental: Rental, attemptId: String): Outcome<CarReservation, ReservationError> {
+    override suspend fun reserve(
+        car: Car,
+        rental: Rental,
+        details: DriverDetails,
+        attemptId: String,
+    ): Outcome<CarReservation, ReservationError> {
         reserveError?.let { return Outcome.Failure(it) }
         reservations[attemptId]?.let { return Outcome.Success(it) }
         val fee = if (rental.sameReturn) 0 else Rental.ONE_WAY_FEE_USD
-        return CarReservation("SKC${reservations.size + 1}AB", car.pricePerDayUsd * rental.days + fee, rental.days, fee)
-            .also { reservations[attemptId] = it }
+        val extras = details.extras.sumOf { it.perDayUsd } * rental.days
+        val young = details.age.feePerDayUsd * rental.days
+        return CarReservation(
+            reference = "SKC${reservations.size + 1}AB",
+            totalUsd = car.pricePerDayUsd * rental.days + fee + extras + young,
+            days = rental.days,
+            oneWayFeeUsd = fee,
+            extrasUsd = extras,
+            youngDriverFeeUsd = young,
+        ).also { reservations[attemptId] = it; this.details[attemptId] = details }
             .let { Outcome.Success(it) }
     }
 }

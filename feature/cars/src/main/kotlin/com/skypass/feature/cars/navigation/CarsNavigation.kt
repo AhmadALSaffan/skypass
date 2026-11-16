@@ -9,6 +9,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object CarsDestination
 
-fun NavGraphBuilder.carsScreen(onBack: () -> Unit) {
-    composable<CarsDestination> { CarsRoute(onBack = onBack) }
+fun NavGraphBuilder.carsScreen(onBack: () -> Unit, onOpenMyTrips: () -> Unit) {
+    composable<CarsDestination> { CarsRoute(onBack = onBack, onOpenMyTrips = onOpenMyTrips) }
 }

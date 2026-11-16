@@ -61,7 +61,7 @@ class ProfilePlaceholderViewModel @Inject constructor(
 }
 
 @Composable
-fun ProfilePlaceholder(onSignedOut: () -> Unit, viewModel: ProfilePlaceholderViewModel = hiltViewModel()) {
+fun ProfilePlaceholder(onSignedOut: () -> Unit, onMyTrips: () -> Unit, viewModel: ProfilePlaceholderViewModel = hiltViewModel()) {
     val session by viewModel.session.collectAsStateWithLifecycle()
     Column(
         Modifier.fillMaxSize().background(SkypassTheme.colors.bg).padding(24.dp),
@@ -74,6 +74,7 @@ fun ProfilePlaceholder(onSignedOut: () -> Unit, viewModel: ProfilePlaceholderVie
             user.email?.let { Text(it, style = SkypassTheme.typography.bodySm, color = SkypassTheme.colors.text2) }
         }
         Text("Full profile arrives in Phase 11", style = SkypassTheme.typography.body, color = SkypassTheme.colors.text2)
+        SkypassTextButton("My trips", onMyTrips, color = SkypassTheme.colors.brand)
         SkypassTextButton("Sign out", { viewModel.signOut(onSignedOut) }, color = SkypassTheme.colors.danger)
     }
 }

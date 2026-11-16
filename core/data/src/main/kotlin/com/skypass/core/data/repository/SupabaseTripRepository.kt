@@ -42,7 +42,7 @@ internal class SupabaseTripRepository @Inject constructor(
         val cached = readCache()
         if (cached != null) send(cached.toModel())
 
-        val fresh = safeCall { supabase.postgrest.rpc("next_trip").decodeList<TripDto>().firstOrNull() }
+        val fresh = supabase.safeCall { supabase.postgrest.rpc("next_trip").decodeList<TripDto>().firstOrNull() }
         if (fresh !is Outcome.Success) {
             // Offline or refused: keep showing the cached trip (or nothing) and stop here.
             if (cached == null) send(null)

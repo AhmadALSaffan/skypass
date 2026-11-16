@@ -36,7 +36,15 @@ internal class SupabaseAuthRepository @Inject constructor(
         .map { status -> (status as? SessionStatus.Authenticated)?.session?.user?.toModel() }
         .distinctUntilChanged()
 
+    /**
+     * Who is signed in, without waiting on the network. Supabase's own initialization also refreshes
+     * a stale token, a round trip that would hold the splash screen, so this reads the session saved
+     * on the phone. Data calls wait for the refresh themselves (see safeCall).
+     */
     override suspend fun currentSession(): UserSession? {
+        (supabase.auth.sessionStatus.value as? SessionStatus.Authenticated)?.session?.user?.let { return it.toModel() }
+        val saved = supabase.auth.sessionManager.loadSessionOrNull() ?: return null
+        saved.user?.let { return it.toModel() }
         supabase.auth.awaitInitialization()
         return supabase.auth.currentUserOrNull()?.toModel()
     }

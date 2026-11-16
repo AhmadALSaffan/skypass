@@ -1,7 +1,12 @@
 package com.skypass.feature.cars
 
 import androidx.lifecycle.SavedStateHandle
+import app.cash.turbine.test
+import com.skypass.core.domain.usecase.ContactProblem
 import com.skypass.core.domain.usecase.DropOffPlacesUseCase
+import com.skypass.core.domain.usecase.PrefillContactUseCase
+import com.skypass.core.domain.usecase.PrefillDriverUseCase
+import com.skypass.core.domain.usecase.ValidateContactUseCase
 import com.skypass.core.domain.usecase.FilterCarsUseCase
 import com.skypass.core.domain.usecase.GetAirportsUseCase
 import com.skypass.core.domain.usecase.GetCarsUseCase
@@ -12,19 +17,28 @@ import com.skypass.core.domain.usecase.ResolveRentalUseCase
 import com.skypass.core.domain.usecase.SearchAirportsUseCase
 import com.skypass.core.domain.usecase.ValidateRentalUseCase
 import com.skypass.core.model.AppError
+import com.skypass.core.model.CarExtra
 import com.skypass.core.model.CarType
+import com.skypass.core.model.ContactDetails
+import com.skypass.core.model.DriverAge
 import com.skypass.core.model.ReservationError
 import com.skypass.core.testing.FakeAirportRepository
 import com.skypass.core.testing.FakeCarRepository
+import com.skypass.core.testing.FakePassengerRepository
+import com.skypass.core.testing.FakeProfileRepository
+import com.skypass.core.testing.TestPassengers
+import com.skypass.core.testing.TestTrips
 import com.skypass.core.testing.FakeTripRepository
 import com.skypass.core.testing.MainDispatcherExtension
 import com.skypass.core.testing.TestAirports
 import com.skypass.core.testing.TestCars
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
+import kotlinx.coroutines.test.runTest
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
@@ -39,6 +53,7 @@ class CarsViewModelTest {
     private val clock = Clock.fixed(Instant.parse("2026-11-15T10:00:00Z"), ZoneId.of("UTC"))
     private val cars = FakeCarRepository()
     private val trips = FakeTripRepository().apply { emit(null) }
+    private val passengers = FakePassengerRepository(listOf(TestPassengers.TINA))
 
     private fun viewModel(handle: SavedStateHandle = SavedStateHandle()) = CarsViewModel(
         savedStateHandle = handle,
@@ -50,7 +65,9 @@ class CarsViewModelTest {
         filterCars = FilterCarsUseCase(),
         priceRental = PriceRentalUseCase(),
         validateRental = ValidateRentalUseCase(clock),
-        reserveCar = ReserveCarUseCase(cars),
+        reserveCar = ReserveCarUseCase(cars, ValidateContactUseCase()),
+        prefillDriver = PrefillDriverUseCase(PrefillContactUseCase(passengers, FakeProfileRepository()), trips),
+        validateContact = ValidateContactUseCase(),
         clock = clock,
     )
 
@@ -121,18 +138,79 @@ class CarsViewModelTest {
         cars.reserveError = ReservationError.Network
         val vm = viewModel()
         vm.onEvent(CarsEvent.Reserve)
+        vm.onEvent(CarsEvent.Confirm)
         assertEquals(ReservationError.Network, vm.uiState.value.reserveError)
         assertEquals(CarReserveState.Idle, vm.uiState.value.reserve)
 
         cars.reserveError = null
-        vm.onEvent(CarsEvent.Reserve)
+        vm.onEvent(CarsEvent.Confirm)
         val reserved = vm.uiState.value.reserve as CarReserveState.Reserved
         assertEquals(287, reserved.reservation.totalUsd)
         assertEquals(1, cars.reservations.size)
+        assertNull(vm.uiState.value.checkout)
 
         vm.onEvent(CarsEvent.DismissReserved)
         vm.onEvent(CarsEvent.Reserve)
+        vm.onEvent(CarsEvent.Confirm)
         assertEquals(2, cars.reservations.size)
+    }
+
+    @Test
+    fun `Reserve car opens Driver and extras, prefilled, and extras and age reprice it`() {
+        val vm = viewModel()
+        vm.onEvent(CarsEvent.Reserve)
+        val sheet = vm.uiState.value.checkout!!
+        assertEquals("Tina Anderson", sheet.details.driver.name)
+        assertEquals(287, sheet.price.totalUsd)
+
+        vm.onEvent(CarsEvent.ToggleExtra(CarExtra.FullCover))
+        vm.onEvent(CarsEvent.ToggleExtra(CarExtra.ChildSeat))
+        vm.onEvent(CarsEvent.SelectAge(DriverAge.Young))
+        // $41 × 7 + ($18 + $8) × 7 + $15 × 7
+        assertEquals(574, vm.uiState.value.checkout!!.price.totalUsd)
+
+        vm.onEvent(CarsEvent.FlightChanged("nz5"))
+        vm.onEvent(CarsEvent.Confirm)
+        val reserved = vm.uiState.value.reserve as CarReserveState.Reserved
+        assertEquals(574, reserved.reservation.totalUsd)
+        val sent = cars.details.values.single()
+        assertEquals(setOf(CarExtra.FullCover, CarExtra.ChildSeat), sent.extras)
+        assertEquals("NZ5", sent.flightNumber)
+        // The footer keeps showing the car's own price.
+        assertEquals(287, vm.uiState.value.price?.totalUsd)
+    }
+
+    @Test
+    fun `a bad flight number or missing name stops the booking`() {
+        val vm = viewModel()
+        vm.onEvent(CarsEvent.Reserve)
+        vm.onEvent(CarsEvent.FlightChanged("late"))
+        vm.onEvent(CarsEvent.DriverChanged(ContactDetails("", "tina@example.com")))
+        vm.onEvent(CarsEvent.Confirm)
+        val sheet = vm.uiState.value.checkout!!
+        assertTrue(sheet.flightInvalid)
+        assertEquals(setOf(ContactProblem.NameMissing), sheet.problems)
+        assertTrue(cars.reservations.isEmpty())
+    }
+
+    @Test
+    fun `the flight number is suggested when the next flight lands at the pick-up airport`() {
+        trips.emit(TestTrips.FLIGHT.trip) // NZ5 lands in Auckland
+        val vm = viewModel()
+        vm.onEvent(CarsEvent.Reserve)
+        assertEquals("NZ5", vm.uiState.value.checkout!!.details.flightNumber)
+    }
+
+    @Test
+    fun `View in My trips sends the traveller there`() = runTest {
+        val vm = viewModel()
+        vm.onEvent(CarsEvent.Reserve)
+        vm.onEvent(CarsEvent.Confirm)
+        vm.effects.test {
+            vm.onEvent(CarsEvent.OpenMyTrips)
+            assertEquals(CarsEffect.OpenMyTrips, awaitItem())
+        }
+        assertEquals(CarReserveState.Idle, vm.uiState.value.reserve)
     }
 
     @Test

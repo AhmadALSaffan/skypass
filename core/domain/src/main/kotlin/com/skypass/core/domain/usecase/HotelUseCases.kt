@@ -11,6 +11,7 @@ import com.skypass.core.model.Outcome
 import com.skypass.core.model.ReservationError
 import com.skypass.core.model.RoomType
 import com.skypass.core.model.Stay
+import com.skypass.core.model.StayDetails
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
@@ -82,10 +83,22 @@ class ValidateStayUseCase @Inject constructor(private val clock: Clock) {
     }
 }
 
-class ReserveHotelUseCase @Inject constructor(private val hotels: HotelRepository) {
-    suspend operator fun invoke(hotel: Hotel, room: RoomType, stay: Stay, attemptId: String): Outcome<HotelReservation, ReservationError> {
+class ReserveHotelUseCase @Inject constructor(
+    private val hotels: HotelRepository,
+    private val validateContact: ValidateContactUseCase,
+) {
+    suspend operator fun invoke(
+        hotel: Hotel,
+        room: RoomType,
+        stay: Stay,
+        details: StayDetails,
+        attemptId: String,
+    ): Outcome<HotelReservation, ReservationError> {
         if (stay.guests > room.capacity) return Outcome.Failure(ReservationError.TooManyGuests)
-        return hotels.reserve(hotel.id, room, stay.checkIn, stay.checkOut, stay.guests, attemptId)
+        if (validateContact(details.guest).isNotEmpty() || details.note.length > StayDetails.MAX_NOTE) {
+            return Outcome.Failure(ReservationError.InvalidDetails)
+        }
+        return hotels.reserve(hotel.id, room, stay.checkIn, stay.checkOut, stay.guests, details, attemptId)
     }
 }
 

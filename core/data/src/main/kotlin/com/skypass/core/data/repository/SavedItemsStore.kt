@@ -22,9 +22,9 @@ internal class SavedItemsStore(private val supabase: SupabaseClient, private val
     private var loadedFor: String? = null
 
     fun ids(): Flow<Set<String>> = flow {
-        val user = supabase.auth.currentUserOrNull()?.id
+        val user = supabase.signedInUserId()
         if (user != null && user != loadedFor) {
-            val loaded = safeCall {
+            val loaded = supabase.safeCall {
                 supabase.from("saved_items").select { filter { eq("kind", kind) } }
                     .decodeList<SavedItemDto>()
                     .map { it.itemId }
@@ -41,7 +41,7 @@ internal class SavedItemsStore(private val supabase: SupabaseClient, private val
     suspend fun setSaved(id: String, saved: Boolean): Outcome<Unit, AppError> {
         // Optimistic: the icon fills immediately; roll back if the server refuses.
         ids.update { if (saved) it + id else it - id }
-        val result = safeCall {
+        val result = supabase.safeCall {
             if (saved) {
                 supabase.from("saved_items").upsert(SavedItemDto(kind, id))
             } else {

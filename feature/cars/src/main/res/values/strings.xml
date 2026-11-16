@@ -42,4 +42,35 @@
     <string name="cars_error_dates">Those dates don\'t work. Change them and try again.</string>
     <string name="cars_error_network">No connection. Nothing was booked; try again.</string>
     <string name="cars_error_unknown">That didn\'t work. Nothing was booked; try again.</string>
+    <string name="cars_error_details">Check the driver details and try again.</string>
+
+    <string name="cars_checkout_title">Driver &amp; extras</string>
+    <string name="cars_driver">Main driver</string>
+    <string name="cars_driver_age">Driver\'s age</string>
+    <string name="cars_young_driver">Drivers under 25 pay a young driver fee of %1$s a day.</string>
+    <string name="cars_flight">Arriving flight (optional)</string>
+    <string name="cars_flight_hint">E.g. NZ5</string>
+    <string name="cars_flight_note">If your flight is late, the desk keeps the car for you.</string>
+    <string name="cars_extras">Extras</string>
+    <string name="cars_extra_per_day">%1$s/day</string>
+    <string name="cars_price">Price</string>
+    <plurals name="cars_rate_days">
+        <item quantity="one">%1$s × %2$d day</item>
+        <item quantity="other">%1$s × %2$d days</item>
+    </plurals>
+    <string name="cars_young_fee">Young driver fee</string>
+    <string name="cars_one_way">One-way drop-off</string>
+    <string name="cars_total">Total</string>
+    <string name="cars_policy_free">Free cancellation until %1$s</string>
+    <string name="cars_policy_licence">Bring a full driving licence held for at least a year, in the main driver\'s name.</string>
+    <string name="cars_policy_pay">You pay at the desk. Nothing is charged now.</string>
+    <string name="cars_confirm">Confirm booking · %1$s</string>
+    <string name="cars_specs">%1$s · %2$d seats · %3$d bags · %4$s</string>
+    <string name="cars_problem_name">Enter the driver\'s full name.</string>
+    <string name="cars_problem_email">Enter an email like name@example.com.</string>
+    <string name="cars_problem_phone">Enter a phone number, or leave it empty.</string>
+    <string name="cars_problem_flight">Enter a flight number like NZ5, or leave it empty.</string>
+    <string name="cars_reserved_driver">Driver: %1$s</string>
+    <string name="cars_saved_to_trips">Saved to My trips</string>
+    <string name="cars_view_trips">View in My trips</string>
 </resources>

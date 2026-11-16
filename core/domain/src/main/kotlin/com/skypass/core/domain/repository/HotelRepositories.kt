@@ -6,6 +6,7 @@ import com.skypass.core.model.HotelReservation
 import com.skypass.core.model.Outcome
 import com.skypass.core.model.ReservationError
 import com.skypass.core.model.RoomType
+import com.skypass.core.model.StayDetails
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 
@@ -14,8 +15,9 @@ interface HotelRepository {
     suspend fun hotels(city: String): Outcome<List<Hotel>, AppError>
 
     /**
-     * Books [room] at [hotelId]. The server prices it; calling again with the same [attemptId]
-     * returns the first reservation instead of booking twice.
+     * Books [room] at [hotelId] for the guest in [details]. The server prices it and keeps the
+     * details for My trips; calling again with the same [attemptId] returns the first reservation
+     * instead of booking twice.
      */
     suspend fun reserve(
         hotelId: String,
@@ -23,6 +25,7 @@ interface HotelRepository {
         checkIn: LocalDate,
         checkOut: LocalDate,
         guests: Int,
+        details: StayDetails,
         attemptId: String,
     ): Outcome<HotelReservation, ReservationError>
 }

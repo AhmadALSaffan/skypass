@@ -1,6 +1,12 @@
 package com.skypass.core.domain.usecase
 
 import com.skypass.core.model.Airport
+import com.skypass.core.model.CarExtra
+import com.skypass.core.model.ContactDetails
+import com.skypass.core.model.DriverAge
+import com.skypass.core.model.DriverDetails
+import com.skypass.core.model.Outcome
+import com.skypass.core.model.ReservationError
 import com.skypass.core.model.CarType
 import com.skypass.core.model.Rental
 import com.skypass.core.model.RentalPlace
@@ -9,6 +15,8 @@ import com.skypass.core.testing.TestAirports
 import com.skypass.core.testing.TestCars
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import java.time.Clock
@@ -57,6 +65,32 @@ class CarUseCasesTest {
             listOf("Auckland Airport (AKL)", "Auckland CBD, Queen St", "Queenstown Airport (ZQN)", "Wellington Airport (WLG)"),
             places.map { it.label },
         )
+    }
+
+    @Test
+    fun `extras and the young driver fee are per day, like the server`() {
+        val price = PriceRentalUseCase()(TestCars.CERATO, rental(), setOf(CarExtra.FullCover, CarExtra.Gps), DriverAge.Young)
+        assertEquals(287, price.carUsd)
+        assertEquals(168, price.extrasUsd) // ($18 + $6) × 7
+        assertEquals(105, price.youngDriverFeeUsd) // $15 × 7
+        assertEquals(560, price.totalUsd)
+    }
+
+    @Test
+    fun `flight numbers are optional, and look like NZ5 or QF 144`() {
+        val ok = listOf("", "NZ5", "nz5", "QF 144", "3K1")
+        val bad = listOf("N5", "NZ", "NZ12345", "late", "NZ-5")
+        ok.forEach { assertTrue(ReserveCarUseCase.FLIGHT_NUMBER.matches(it), it) }
+        bad.forEach { assertFalse(ReserveCarUseCase.FLIGHT_NUMBER.matches(it), it) }
+    }
+
+    @Test
+    fun `a booking without a valid driver never reaches the server`() = runTest {
+        val repo = com.skypass.core.testing.FakeCarRepository()
+        val reserve = ReserveCarUseCase(repo, ValidateContactUseCase())
+        val result = reserve(TestCars.CERATO, rental(), DriverDetails(ContactDetails("T", "tina@example.com")), "a-1")
+        assertEquals(Outcome.Failure(ReservationError.InvalidDetails), result)
+        assertTrue(repo.reservations.isEmpty())
     }
 
     @Test

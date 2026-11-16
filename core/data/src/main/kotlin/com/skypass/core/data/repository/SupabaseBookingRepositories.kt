@@ -25,6 +25,7 @@ import com.skypass.core.model.Seat
 import com.skypass.core.model.SeatMap
 import com.skypass.core.model.SeatType
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.exceptions.HttpRequestException
 import io.github.jan.supabase.exceptions.RestException
 import io.github.jan.supabase.postgrest.from
@@ -46,7 +47,7 @@ internal class SupabaseFlightOfferRepository @Inject constructor(
     private val supabase: SupabaseClient,
 ) : FlightOfferRepository {
     override suspend fun offer(instanceId: String, cabin: Cabin, passengers: Int): Outcome<FlightOffer, AppError> {
-        val result = safeCall {
+        val result = supabase.safeCall {
             supabase.postgrest.rpc(
                 "flight_offer",
                 buildJsonObject {
@@ -100,7 +101,7 @@ internal class SupabaseSeatMapRepository @Inject constructor(
     private val supabase: SupabaseClient,
 ) : SeatMapRepository {
     override suspend fun seatMap(instanceId: String, cabin: Cabin): Outcome<SeatMap, AppError> {
-        val result = safeCall {
+        val result = supabase.safeCall {
             supabase.postgrest.rpc(
                 "get_seat_map",
                 buildJsonObject {
@@ -180,14 +181,14 @@ internal class SupabasePassengerRepository @Inject constructor(
     private val supabase: SupabaseClient,
 ) : PassengerRepository {
 
-    override suspend fun passengers(): Outcome<List<Passenger>, AppError> = safeCall {
+    override suspend fun passengers(): Outcome<List<Passenger>, AppError> = supabase.safeCall {
         supabase.from("passengers").select(io.github.jan.supabase.postgrest.query.Columns.raw(PASSENGER_COLUMNS)) {
             order("is_primary", Order.DESCENDING)
             order("created_at", Order.ASCENDING)
         }.decodeList<PassengerDto>().map { it.toModel() }
     }
 
-    override suspend fun save(passenger: Passenger): Outcome<Passenger, AppError> = safeCall {
+    override suspend fun save(passenger: Passenger): Outcome<Passenger, AppError> = supabase.safeCall {
         val dto = passenger.toDto()
         val columns = io.github.jan.supabase.postgrest.query.Columns.raw(PASSENGER_COLUMNS)
         if (passenger.id == null) {
@@ -211,7 +212,7 @@ private data class PromoDto(val code: String, @SerialName("percent_off") val per
 internal class SupabasePromoRepository @Inject constructor(
     private val supabase: SupabaseClient,
 ) : PromoRepository {
-    override suspend fun check(code: String): Outcome<PromoCode?, AppError> = safeCall {
+    override suspend fun check(code: String): Outcome<PromoCode?, AppError> = supabase.safeCall {
         supabase.postgrest.rpc("check_promo", buildJsonObject { put("p_code", code) })
             .decodeList<PromoDto>()
             .firstOrNull()
@@ -322,7 +323,7 @@ internal class SupabaseBookingRepository @Inject constructor(
         ConfirmedBooking(row.id, row.pnr.orEmpty(), row.totalUsd.toInt())
     }
 
-    override suspend fun boardingPasses(bookingId: String): Outcome<List<BoardingPass>, AppError> = safeCall {
+    override suspend fun boardingPasses(bookingId: String): Outcome<List<BoardingPass>, AppError> = supabase.safeCall {
         supabase.postgrest.rpc("boarding_pass", buildJsonObject { put("p_booking_id", bookingId) })
             .decodeList<BoardingPassDto>()
             .flatMap { it.toModels() }
@@ -330,6 +331,7 @@ internal class SupabaseBookingRepository @Inject constructor(
 
     /** Maps the server's raised errors (seat_taken, invalid_promo …) to what the UI explains. */
     private suspend fun <T> bookingCall(block: suspend () -> T): Outcome<T, BookingError> = try {
+        supabase.auth.awaitInitialization()
         Outcome.Success(block())
     } catch (e: CancellationException) {
         throw e

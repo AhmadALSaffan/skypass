@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="trips_title">My trips</string>
+    <string name="trips_subtitle">Flights, stays and cars you\'ve booked</string>
+    <string name="trips_tab_flights">Flights</string>
+    <string name="trips_tab_stays">Stays</string>
+    <string name="trips_tab_cars">Cars</string>
+    <string name="trips_upcoming">Upcoming</string>
+    <string name="trips_past">Past and cancelled</string>
+    <string name="trips_confirmed">Confirmed</string>
+    <string name="trips_cancelled">Cancelled</string>
+    <string name="trips_completed">Completed</string>
+    <string name="trips_seat">Seat %1$s</string>
+    <string name="trips_pass">Boarding pass</string>
+    <plurals name="trips_nights">
+        <item quantity="one">%d night</item>
+        <item quantity="other">%d nights</item>
+    </plurals>
+    <plurals name="trips_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="trips_guests">
+        <item quantity="one">%d guest</item>
+        <item quantity="other">%d guests</item>
+    </plurals>
+    <plurals name="trips_rate_nights">
+        <item quantity="one">%1$s × %2$d night</item>
+        <item quantity="other">%1$s × %2$d nights</item>
+    </plurals>
+    <plurals name="trips_rate_days">
+        <item quantity="one">%1$s × %2$d day</item>
+        <item quantity="other">%1$s × %2$d days</item>
+    </plurals>
+
+    <string name="trips_empty_flights">No flights yet</string>
+    <string name="trips_empty_flights_body">Flights you book show up here with their boarding pass.</string>
+    <string name="trips_find_flights">Search flights</string>
+    <string name="trips_empty_stays">No stays yet</string>
+    <string name="trips_empty_stays_body">Hotels you book show up here, with your guest details and requests.</string>
+    <string name="trips_find_stays">Find a stay</string>
+    <string name="trips_empty_cars">No cars yet</string>
+    <string name="trips_empty_cars_body">Rental cars you book show up here, with the driver and extras.</string>
+    <string name="trips_find_cars">Rent a car</string>
+    <string name="trips_offline_title">Can\'t load your trips</string>
+    <string name="trips_offline_body">Check your connection and try again.</string>
+    <string name="trips_retry">Try again</string>
+
+    <string name="trips_reference">Ref %1$s</string>
+    <string name="trips_check_in">Check-in</string>
+    <string name="trips_check_out">Check-out</string>
+    <string name="trips_from_time">from %1$s</string>
+    <string name="trips_until_time">until %1$s</string>
+    <string name="trips_room">Room</string>
+    <string name="trips_guests">Guests</string>
+    <string name="trips_lead_guest">Lead guest</string>
+    <string name="trips_driver">Main driver</string>
+    <string name="trips_name">Name</string>
+    <string name="trips_email">Email</string>
+    <string name="trips_phone">Mobile</string>
+    <string name="trips_arrival">Arrival</string>
+    <string name="trips_driver_age">Age</string>
+    <string name="trips_flight">Flight</string>
+    <string name="trips_requests">Requests</string>
+    <string name="trips_pickup">Pick-up</string>
+    <string name="trips_dropoff">Drop-off</string>
+    <string name="trips_price">Price</string>
+    <string name="trips_taxes">Taxes and fees</string>
+    <string name="trips_included">Included</string>
+    <string name="trips_total">Total</string>
+    <string name="trips_young_fee">Young driver fee</string>
+    <string name="trips_one_way">One-way drop-off</string>
+    <string name="trips_free_until">Free cancellation until %1$s</string>
+    <string name="trips_non_refundable">Non-refundable: this rate can\'t be cancelled.</string>
+    <string name="trips_cancelled_note">This booking was cancelled. Nothing is owed.</string>
+    <string name="trips_pay_at_hotel">You pay at the hotel.</string>
+    <string name="trips_licence">Bring a full driving licence in the main driver\'s name. You pay at the desk.</string>
+    <string name="trips_directions">Directions</string>
+    <string name="trips_cancel">Cancel booking</string>
+    <string name="trips_cancel_confirm">Cancel this booking? It\'s free, and it can\'t be undone.</string>
+    <string name="trips_cancel_yes">Yes, cancel it</string>
+    <string name="trips_cancel_keep">Keep my booking</string>
+    <string name="trips_cancel_too_late">Free cancellation has ended for this booking.</string>
+    <string name="trips_cancel_network">No connection. Nothing changed; try again.</string>
+    <string name="trips_cancel_unknown">That didn\'t work. Nothing changed; try again.</string>
+</resources>

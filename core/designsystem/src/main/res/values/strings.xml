@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="contact_name">Full name</string>
+    <string name="contact_name_hint">As on your ID</string>
+    <string name="contact_email">Email</string>
+    <string name="contact_email_hint">name@example.com</string>
+    <string name="contact_phone">Mobile (optional)</string>
+    <string name="contact_phone_hint">+64 21 555 0199</string>
+</resources>

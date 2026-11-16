@@ -29,7 +29,7 @@ internal class SupabaseFlightSearchRepository @Inject constructor(
         date: LocalDate,
         cabin: Cabin,
         passengers: Int,
-    ): Outcome<List<FlightOffer>, AppError> = safeCall {
+    ): Outcome<List<FlightOffer>, AppError> = supabase.safeCall {
         supabase.postgrest.rpc(
             "search_flights",
             buildJsonObject {
@@ -43,7 +43,7 @@ internal class SupabaseFlightSearchRepository @Inject constructor(
     }
 
     override suspend fun priceStrip(from: String, to: String, center: LocalDate, cabin: Cabin): Outcome<List<DayPrice>, AppError> =
-        safeCall {
+        supabase.safeCall {
             supabase.postgrest.rpc(
                 "date_price_strip",
                 buildJsonObject {

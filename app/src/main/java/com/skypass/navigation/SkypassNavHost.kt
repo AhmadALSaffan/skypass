@@ -59,6 +59,8 @@ import com.skypass.feature.onboarding.navigation.onboardingScreen
 import com.skypass.feature.results.navigation.ResultsDestination
 import com.skypass.feature.results.navigation.resultsScreen
 import com.skypass.feature.results.navigation.toResultsDestination
+import com.skypass.feature.trips.navigation.TripsDestination
+import com.skypass.feature.trips.navigation.tripsScreen
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
 
@@ -119,7 +121,7 @@ fun SkypassNavHost(startScreen: StartScreen) {
 
             homeScreen(
                 onSearch = { navController.navigate(it.toResultsDestination()) },
-                onSeeAllTrips = { navController.switchTab(Tab.Saved) },
+                onSeeAllTrips = { navController.navigate(TripsDestination()) },
                 onSeeAllDestinations = { navController.switchTab(Tab.Explore) },
             )
             exploreScreen(
@@ -127,11 +129,32 @@ fun SkypassNavHost(startScreen: StartScreen) {
                 onOpenHotels = { navController.navigate(HotelsDestination()) },
                 onOpenCars = { navController.navigate(CarsDestination) },
             )
-            hotelsScreen(onBack = { navController.popBackStack() })
-            carsScreen(onBack = { navController.popBackStack() })
+            // After booking, My trips replaces the booking screen, so Back goes where the traveller came from.
+            hotelsScreen(
+                onBack = { navController.popBackStack() },
+                onOpenMyTrips = {
+                    navController.navigate(TripsDestination("Stays")) { popUpTo<HotelsDestination> { inclusive = true } }
+                },
+            )
+            carsScreen(
+                onBack = { navController.popBackStack() },
+                onOpenMyTrips = {
+                    navController.navigate(TripsDestination("Cars")) { popUpTo<CarsDestination> { inclusive = true } }
+                },
+            )
+            tripsScreen(
+                onBack = { navController.popBackStack() },
+                onBoardingPass = { navController.navigate(ConfirmationDestination(it)) },
+                onFindFlights = { navController.switchTab(Tab.Home) },
+                onFindStays = { navController.navigate(HotelsDestination()) },
+                onFindCars = { navController.navigate(CarsDestination) },
+            )
             composable<SavedDestination> { ComingSoon("Saved", phase = 11) }
             composable<ProfileDestination> {
-                ProfilePlaceholder(onSignedOut = { navController.replaceAll(SignInDestination) })
+                ProfilePlaceholder(
+                    onSignedOut = { navController.replaceAll(SignInDestination) },
+                    onMyTrips = { navController.navigate(TripsDestination()) },
+                )
             }
             resultsScreen(
                 onBack = { navController.popBackStack() },

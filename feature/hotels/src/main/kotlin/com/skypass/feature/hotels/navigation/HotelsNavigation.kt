@@ -9,6 +9,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class HotelsDestination(val city: String? = null)
 
-fun NavGraphBuilder.hotelsScreen(onBack: () -> Unit) {
-    composable<HotelsDestination> { HotelsRoute(onBack = onBack) }
+fun NavGraphBuilder.hotelsScreen(onBack: () -> Unit, onOpenMyTrips: () -> Unit) {
+    composable<HotelsDestination> { HotelsRoute(onBack = onBack, onOpenMyTrips = onOpenMyTrips) }
 }

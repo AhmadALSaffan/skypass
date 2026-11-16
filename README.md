@@ -91,21 +91,30 @@ The tiles, the deal and the photo grid are for inspiration. Tapping a destinatio
 
 ### Hotels
 
-Stays in the city you're flying to, from the day you land. Every city on the network has stays. Pick a room and the server prices and books it.
+Stays in the city you're flying to, from the day you land. Every city on the network has stays. Pick a room, then add the lead guest, arrival time and requests; the server prices and books it.
 
-| | Hotels | Choose a room | Booked |
-|:---:|:---:|:---:|:---:|
-| **Light** | <img src="docs/screenshots/light/hotels.jpg" width="170"> | <img src="docs/screenshots/light/hotel-rooms.jpg" width="170"> | <img src="docs/screenshots/light/hotel-reserved.jpg" width="170"> |
-| **Dark** | <img src="docs/screenshots/dark/hotels.jpg" width="170"> | <img src="docs/screenshots/dark/hotel-rooms.jpg" width="170"> | <img src="docs/screenshots/dark/hotel-reserved.jpg" width="170"> |
+| | Hotels | Choose a room | Guest details | Booked |
+|:---:|:---:|:---:|:---:|:---:|
+| **Light** | <img src="docs/screenshots/light/hotels.jpg" width="170"> | <img src="docs/screenshots/light/hotel-rooms.jpg" width="170"> | <img src="docs/screenshots/light/hotel-guest.jpg" width="170"> | <img src="docs/screenshots/light/hotel-reserved.jpg" width="170"> |
+| **Dark** | <img src="docs/screenshots/dark/hotels.jpg" width="170"> | <img src="docs/screenshots/dark/hotel-rooms.jpg" width="170"> | <img src="docs/screenshots/dark/hotel-guest.jpg" width="170"> | <img src="docs/screenshots/dark/hotel-reserved.jpg" width="170"> |
 
 ### Car rental
 
-Pick up at the airport you land at. Choose a type, then a car; the total follows your days and where you drop it off.
+Pick up at the airport you land at. Choose a type, then a car, then the driver and extras; the total follows your days, extras and where you drop it off.
 
-| | Rent a car | One way | Reserved |
-|:---:|:---:|:---:|:---:|
-| **Light** | <img src="docs/screenshots/light/cars.jpg" width="170"> | <img src="docs/screenshots/light/cars-oneway.jpg" width="170"> | <img src="docs/screenshots/light/cars-reserved.jpg" width="170"> |
-| **Dark** | <img src="docs/screenshots/dark/cars.jpg" width="170"> | <img src="docs/screenshots/dark/cars-oneway.jpg" width="170"> | <img src="docs/screenshots/dark/cars-reserved.jpg" width="170"> |
+| | Rent a car | One way | Driver & extras | Reserved |
+|:---:|:---:|:---:|:---:|:---:|
+| **Light** | <img src="docs/screenshots/light/cars.jpg" width="170"> | <img src="docs/screenshots/light/cars-oneway.jpg" width="170"> | <img src="docs/screenshots/light/car-checkout.jpg" width="170"> | <img src="docs/screenshots/light/cars-reserved.jpg" width="170"> |
+| **Dark** | <img src="docs/screenshots/dark/cars.jpg" width="170"> | <img src="docs/screenshots/dark/cars-oneway.jpg" width="170"> | <img src="docs/screenshots/dark/car-checkout.jpg" width="170"> | <img src="docs/screenshots/dark/cars-reserved.jpg" width="170"> |
+
+### My trips
+
+Every flight, stay and car you've booked, kept in Supabase so it follows you to another phone. Open one for everything you entered when booking, directions, and free cancellation while it lasts.
+
+| | My trips | A stay |
+|:---:|:---:|:---:|
+| **Light** | <img src="docs/screenshots/light/trips.jpg" width="170"> | <img src="docs/screenshots/light/trip-stay.jpg" width="170"> |
+| **Dark** | <img src="docs/screenshots/dark/trips.jpg" width="170"> | <img src="docs/screenshots/dark/trip-stay.jpg" width="170"> |
 
 ---
 
@@ -148,12 +157,19 @@ Pick up at the airport you land at. Choose a type, then a car; the total follows
   - Cards show the rating, stars, amenities, the nightly rate and the total for your stay.
   - Hearts save a hotel, with a little bounce.
   - Standard, Deluxe and Suite rooms, offered only when they fit your party.
+  - Guest details: the lead guest (prefilled from your saved passenger), arrival time, requests such as a high floor or a quiet room, and a note. Check-in and check-out times, the full price and the cancellation policy before you book.
   - Reserving is priced on the server and idempotent, like flights. The map button opens the city's hotels in your maps app.
 - 🚗 **Car rental**:
   - Picks up at the arrival airport of your next trip at 14:00 on the day you land, back at 10:00 a week later.
   - Change the pick-up airport (any on the network), the dates, or return it somewhere else: the city centre or another airport in the country, for a one-way fee.
   - Compact, SUV, Electric and Premium. Each car stands on its own colour with a soft shadow, and the selected one settles onto it.
   - The total counts up as you change car, days or drop-off, and the server's price matches it. A reserved car drives into the confirmation.
+  - Driver & extras: the main driver (prefilled), their age band (under 25 adds a young driver fee), the arriving flight number (suggested from your next trip, so the desk waits if it's late), and extras priced per day: full protection, child seat, GPS, additional driver.
+- 🧳 **My trips**:
+  - Flights, stays and cars in tabs, upcoming first, then past and cancelled.
+  - A flight opens its boarding pass. A stay or car opens every detail you entered, the price breakdown and directions.
+  - Free cancellation from the app, with an "are you sure" step, until the day before check-in or 48 hours before pick-up. The server enforces the same rule.
+- ⚡ **Fast start**: the splash screen only waits for the session saved on the phone, never the network; the Supabase client is built off the main thread while the activity starts. Data calls wait for a stale token's refresh on their own.
 - 🌗 **Light and dark**: every screen, from the same design tokens.
 - ♿ **Every state designed**: loading skeletons, empty, offline and error states with retry.
 
@@ -171,7 +187,7 @@ Pick up at the airport you land at. Choose a type, then a car; the total follows
 - **MVVM, one direction.** Each screen is a `XRoute` (collects state and one-off effects, gets its ViewModel from Hilt), then a stateless `XScreen(uiState, onEvent)`, then a `XViewModel` holding a `StateFlow` of UI state, a sealed `Event` and a `Channel` of `Effect`s.
 - **Single responsibility.** One use case per action: `SearchFlightsUseCase`, `CalculateBookingTotalUseCase`, `ValidatePassengerUseCase`, `PayForTripUseCase`, `GetExploreCatalogUseCase`, `ReserveHotelUseCase`, `PriceRentalUseCase` and more. ViewModels only map state.
 - **Open/closed.** Sorting is a `FlightSortStrategy`. The price is a chain of `PriceRule`s (fare, promo, tax, seat fee, bags). Each hotel chip is a rule on `HotelFilter`. A new rule is a new class or entry.
-- **Interface segregation.** Small repositories: `FlightSearchRepository`, `SeatMapRepository`, `PassengerRepository`, `BookingRepository`, `ExploreRepository`, `SearchIntentRepository`, `HotelRepository`, `SavedHotelsRepository`, `CarRepository` and more. There's no "god" repository.
+- **Interface segregation.** Small repositories: `FlightSearchRepository`, `SeatMapRepository`, `PassengerRepository`, `BookingRepository`, `ExploreRepository`, `SearchIntentRepository`, `HotelRepository`, `SavedHotelsRepository`, `CarRepository`, `MyTripsRepository` and more. There's no "god" repository.
 - **Dependency inversion.** Features see interfaces from `:core:domain` only; Hilt binds the Supabase implementations in `:core:data`. Fakes in `:core:testing` replace them in tests.
 - **Server as the source of truth.** Prices, seat holds, promo codes and the PNR are computed in Postgres functions. The app shows the same numbers.
 
@@ -180,7 +196,7 @@ Pick up at the airport you land at. Choose a type, then a car; the total follows
 | | |
 |---|---|
 | Tables | `airports`, `airlines`, `routes`, `flights`, `flight_instances`, `cabin_layouts`, `destinations`, `deals`, `promo_codes`, `profiles`, `passengers`, `bookings`, `booking_passengers`, `booking_seats`, `saved_items`, `hotels`, `hotel_reservations`, `cars`, `rental_reservations`, `user_settings` |
-| Functions | `search_flights`, `date_price_strip`, `flight_offer`, `get_seat_map`, `create_booking`, `pay_booking`, `check_promo`, `boarding_pass`, `next_trip`, `explore_destinations`, `reserve_hotel`, `reserve_car` |
+| Functions | `search_flights`, `date_price_strip`, `flight_offer`, `get_seat_map`, `create_booking`, `pay_booking`, `check_promo`, `boarding_pass`, `next_trip`, `explore_destinations`, `reserve_hotel`, `reserve_car`, `my_flights`, `cancel_reservation` |
 | Security | Row-level security on every user table; catalogue tables are read-only; functions run with a fixed `search_path` |
 | Realtime | `flight_instances` updates, for live gate and status changes |
 | Data | 924,067 departures from 2026-11-15 to 2027-11-15, generated in SQL from a compact route list; 5 hotels in every city and 8 rental cars at every airport on the network |
@@ -263,7 +279,7 @@ google.webClientId=1234567890-xxxx.apps.googleusercontent.com
 ./gradlew testDebugUnitTest test
 ```
 
-The tests cover the ViewModels (with Turbine), the use cases, the price rules, the sort strategies and passport validation. The promo-code maths is checked against the server's own figure.
+The tests cover the ViewModels (with Turbine), the use cases, the price rules, the sort strategies and passport validation, booking-form checks, extras pricing and the My trips split. The promo-code maths is checked against the server's own figure.
 
 ---
 
@@ -290,8 +306,9 @@ feature/
 ├── payment/            methods, promo code, pay
 ├── confirmation/       the printer and the boarding pass
 ├── explore/            tiles, deal, categories, destination grid
-├── hotels/             stays, filters, the stay sheet, rooms and reservations
-└── cars/               the trip card, car types, cars and reservations
+├── hotels/             stays, filters, the stay sheet, rooms, guest details
+├── cars/               the trip card, car types, cars, driver and extras
+└── trips/              My trips: flights, stays and cars, details and cancelling
 supabase/migrations/    schema, functions, security, seed data
 docs/                   screenshots and GIFs for this README
 ```

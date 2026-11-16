@@ -11,6 +11,11 @@ import com.skypass.core.model.UpcomingTrip
 import com.skypass.core.testing.FakeHotelRepository
 import com.skypass.core.testing.FakeTripRepository
 import com.skypass.core.testing.TestHotels
+import com.skypass.core.model.ArrivalWindow
+import com.skypass.core.model.ContactDetails
+import com.skypass.core.model.StayDetails
+import com.skypass.core.model.StayRequest
+import com.skypass.core.testing.TestTrips
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -86,16 +91,34 @@ class HotelUseCasesTest {
     @Test
     fun `a retry reuses the reservation, and a full room is refused before the server`() = runTest {
         val repo = FakeHotelRepository()
-        val reserve = ReserveHotelUseCase(repo)
+        val reserve = ReserveHotelUseCase(repo, ValidateContactUseCase())
         val stay = Stay("Auckland", LocalDate.of(2026, 11, 20), LocalDate.of(2026, 11, 27), 2)
-        val first = reserve(TestHotels.KOWHAI, RoomType.Standard, stay, "attempt-1") as Outcome.Success
+        val details = StayDetails(TestTrips.TINA)
+        val first = reserve(TestHotels.KOWHAI, RoomType.Standard, stay, details, "attempt-1") as Outcome.Success
         assertEquals(1323, first.value.totalUsd)
-        assertEquals(first, reserve(TestHotels.KOWHAI, RoomType.Standard, stay, "attempt-1"))
+        assertEquals(189, first.value.nightlyUsd)
+        assertEquals(first, reserve(TestHotels.KOWHAI, RoomType.Standard, stay, details, "attempt-1"))
         assertEquals(1, repo.reservations.size)
 
         assertEquals(
             Outcome.Failure(ReservationError.TooManyGuests),
-            reserve(TestHotels.KOWHAI, RoomType.Standard, stay.copy(guests = 3), "attempt-2"),
+            reserve(TestHotels.KOWHAI, RoomType.Standard, stay.copy(guests = 3), details, "attempt-2"),
         )
+    }
+
+    @Test
+    fun `the guest's details go with the booking, and a booking without a name never reaches the server`() = runTest {
+        val repo = FakeHotelRepository()
+        val reserve = ReserveHotelUseCase(repo, ValidateContactUseCase())
+        val stay = Stay("Auckland", LocalDate.of(2026, 11, 20), LocalDate.of(2026, 11, 27), 2)
+        val details = StayDetails(TestTrips.TINA, ArrivalWindow.Late, setOf(StayRequest.HighFloor), "Anniversary")
+        reserve(TestHotels.KOWHAI, RoomType.Standard, stay, details, "a-1")
+        assertEquals(details, repo.details["a-1"])
+
+        assertEquals(
+            Outcome.Failure(ReservationError.InvalidDetails),
+            reserve(TestHotels.KOWHAI, RoomType.Standard, stay, details.copy(guest = ContactDetails("", "x@y.co")), "a-2"),
+        )
+        assertEquals(1, repo.reservations.size)
     }
 }

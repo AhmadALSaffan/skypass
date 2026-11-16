@@ -51,9 +51,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.skypass.core.designsystem.component.OutlinedButton
 import com.skypass.core.designsystem.component.PrimaryButton
 import com.skypass.core.designsystem.component.SkypassTextButton
 import com.skypass.core.designsystem.icon.SkypassIcons
+import com.skypass.core.designsystem.component.carImageRes
 import com.skypass.core.designsystem.theme.Shapes
 import com.skypass.core.designsystem.theme.SkypassTheme
 import com.skypass.core.model.Rental
@@ -225,7 +227,8 @@ private fun Long.toLocalDate(): LocalDate = Instant.ofEpochMilli(this).atZone(Zo
 /** The car drives in on a spring, with a haptic, then the reference. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun ReservedSheet(reserved: CarReserveState.Reserved, rental: Rental?, onDone: () -> Unit) {
+internal fun ReservedSheet(reserved: CarReserveState.Reserved, rental: Rental?, onEvent: (CarsEvent) -> Unit) {
+    val onDone = { onEvent(CarsEvent.DismissReserved) }
     val colors = SkypassTheme.colors
     val haptics = LocalHapticFeedback.current
     val drive = remember { Animatable(-1f) }
@@ -252,7 +255,7 @@ internal fun ReservedSheet(reserved: CarReserveState.Reserved, rental: Rental?, 
                 contentAlignment = Alignment.BottomCenter,
             ) {
                 androidx.compose.foundation.Image(
-                    painter = painterResource(carImage(reserved.car.imagePath)),
+                    painter = painterResource(carImageRes(reserved.car.imagePath)),
                     contentDescription = reserved.car.name,
                     modifier = Modifier
                         .fillMaxWidth(0.7f)
@@ -291,8 +294,23 @@ internal fun ReservedSheet(reserved: CarReserveState.Reserved, rental: Rental?, 
                 style = SkypassTheme.typography.price.copy(fontWeight = FontWeight.ExtraBold),
                 color = colors.ink,
             )
+            reserved.details?.let { details ->
+                Text(
+                    stringResource(R.string.cars_reserved_driver, details.driver.name) +
+                        details.extras.sortedBy { it.ordinal }.joinToString("") { " · " + it.label },
+                    style = SkypassTheme.typography.bodySm,
+                    color = colors.text2,
+                    textAlign = TextAlign.Center,
+                )
+            }
+            Text(
+                stringResource(R.string.cars_saved_to_trips),
+                style = SkypassTheme.typography.caption.copy(fontWeight = FontWeight.SemiBold),
+                color = colors.brand,
+            )
             Spacer(Modifier.height(4.dp))
-            PrimaryButton(stringResource(R.string.cars_done), onClick = onDone, modifier = Modifier.fillMaxWidth())
+            PrimaryButton(stringResource(R.string.cars_view_trips), onClick = { onEvent(CarsEvent.OpenMyTrips) }, modifier = Modifier.fillMaxWidth())
+            OutlinedButton(stringResource(R.string.cars_done), onClick = onDone, modifier = Modifier.fillMaxWidth())
         }
     }
 }

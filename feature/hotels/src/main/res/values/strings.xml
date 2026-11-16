@@ -62,4 +62,38 @@
     <string name="hotels_error_guests">Too many guests for this room. Pick a bigger one.</string>
     <string name="hotels_error_network">No connection. Nothing was booked; try again.</string>
     <string name="hotels_error_unknown">That didn\'t work. Nothing was booked; try again.</string>
+    <string name="hotels_error_details">Check the guest details and try again.</string>
+
+    <string name="hotels_continue">Continue · %1$s</string>
+    <string name="hotels_back_to_rooms">Back to rooms</string>
+    <string name="hotels_guest_details">Guest details</string>
+    <string name="hotels_lead_guest">Lead guest</string>
+    <string name="hotels_arrival">Arrival time</string>
+    <string name="hotels_requests">Requests</string>
+    <string name="hotels_requests_note">The hotel does its best to meet requests; they aren\'t guaranteed and never cost extra.</string>
+    <string name="hotels_note">Anything else?</string>
+    <string name="hotels_note_hint">E.g. we\'re celebrating an anniversary</string>
+    <string name="hotels_price">Price</string>
+    <plurals name="hotels_rate_nights">
+        <item quantity="one">%1$s × %2$d night</item>
+        <item quantity="other">%1$s × %2$d nights</item>
+    </plurals>
+    <string name="hotels_taxes">Taxes and fees</string>
+    <string name="hotels_included">Included</string>
+    <string name="hotels_total">Total</string>
+    <string name="hotels_policy_free">Free cancellation until %1$s</string>
+    <string name="hotels_policy_non_refundable">Non-refundable: this rate can\'t be cancelled or changed.</string>
+    <string name="hotels_pay_at_hotel">You pay at the hotel. Nothing is charged now.</string>
+    <string name="hotels_confirm">Confirm booking · %1$s</string>
+    <string name="hotels_check_in">Check-in</string>
+    <string name="hotels_check_out">Check-out</string>
+    <string name="hotels_from_time">from %1$s</string>
+    <string name="hotels_until_time">until %1$s</string>
+    <string name="hotels_room">Room</string>
+    <string name="hotels_guest">Guest</string>
+    <string name="hotels_problem_name">Enter the guest\'s full name.</string>
+    <string name="hotels_problem_email">Enter an email like name@example.com.</string>
+    <string name="hotels_problem_phone">Enter a phone number, or leave it empty.</string>
+    <string name="hotels_saved_to_trips">Saved to My trips</string>
+    <string name="hotels_view_trips">View in My trips</string>
 </resources>

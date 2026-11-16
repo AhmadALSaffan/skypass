@@ -45,6 +45,15 @@ internal data class CarReservationDto(
     @SerialName("total_usd") val totalUsd: Double,
     val days: Int,
     @SerialName("one_way_fee_usd") val oneWayFeeUsd: Double,
+    @SerialName("extras_usd") val extrasUsd: Double = 0.0,
+    @SerialName("young_driver_fee_usd") val youngDriverFeeUsd: Double = 0.0,
 ) {
-    fun toModel() = CarReservation(reference, totalUsd.roundToInt(), days, oneWayFeeUsd.roundToInt())
+    fun toModel() = CarReservation(
+        reference = reference,
+        totalUsd = totalUsd.roundToInt(),
+        days = days,
+        oneWayFeeUsd = oneWayFeeUsd.roundToInt(),
+        extrasUsd = extrasUsd.roundToInt(),
+        youngDriverFeeUsd = youngDriverFeeUsd.roundToInt(),
+    )
 }

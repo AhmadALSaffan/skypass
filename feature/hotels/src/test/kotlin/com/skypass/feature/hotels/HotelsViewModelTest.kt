@@ -2,7 +2,10 @@ package com.skypass.feature.hotels
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import com.skypass.core.domain.usecase.ContactProblem
 import com.skypass.core.domain.usecase.FilterHotelsUseCase
+import com.skypass.core.domain.usecase.PrefillContactUseCase
+import com.skypass.core.domain.usecase.ValidateContactUseCase
 import com.skypass.core.domain.usecase.GetAirportsUseCase
 import com.skypass.core.domain.usecase.GetHotelsUseCase
 import com.skypass.core.domain.usecase.ObserveSavedHotelsUseCase
@@ -14,11 +17,17 @@ import com.skypass.core.domain.usecase.SetHotelSavedUseCase
 import com.skypass.core.domain.usecase.StayProblem
 import com.skypass.core.domain.usecase.ValidateStayUseCase
 import com.skypass.core.model.AppError
+import com.skypass.core.model.ArrivalWindow
+import com.skypass.core.model.ContactDetails
+import com.skypass.core.model.StayRequest
 import com.skypass.core.model.HotelFilter
 import com.skypass.core.model.ReservationError
 import com.skypass.core.model.RoomType
 import com.skypass.core.testing.FakeAirportRepository
 import com.skypass.core.testing.FakeHotelRepository
+import com.skypass.core.testing.FakePassengerRepository
+import com.skypass.core.testing.FakeProfileRepository
+import com.skypass.core.testing.TestPassengers
 import com.skypass.core.testing.FakeSavedHotelsRepository
 import com.skypass.core.testing.FakeTripRepository
 import com.skypass.core.testing.MainDispatcherExtension
@@ -45,6 +54,7 @@ class HotelsViewModelTest {
     private val hotels = FakeHotelRepository()
     private val saved = FakeSavedHotelsRepository()
     private val trips = FakeTripRepository().apply { emit(null) }
+    private val passengers = FakePassengerRepository(listOf(TestPassengers.TINA))
 
     private fun viewModel(handle: SavedStateHandle = SavedStateHandle()) = HotelsViewModel(
         savedStateHandle = handle,
@@ -53,7 +63,9 @@ class HotelsViewModelTest {
         filterHotels = FilterHotelsUseCase(),
         priceStay = PriceStayUseCase(),
         validateStay = ValidateStayUseCase(clock),
-        reserveHotel = ReserveHotelUseCase(hotels),
+        reserveHotel = ReserveHotelUseCase(hotels, ValidateContactUseCase()),
+        prefillContact = PrefillContactUseCase(passengers, FakeProfileRepository()),
+        validateContact = ValidateContactUseCase(),
         getAirports = GetAirportsUseCase(FakeAirportRepository()),
         searchAirports = SearchAirportsUseCase(),
         observeSaved = ObserveSavedHotelsUseCase(saved),
@@ -146,6 +158,55 @@ class HotelsViewModelTest {
         vm.onEvent(HotelsEvent.Reserve)
         assertTrue(vm.uiState.value.rooms!!.state is ReserveState.Reserved)
         assertEquals(1, hotels.reservations.size)
+    }
+
+    @Test
+    fun `the details step is prefilled from the saved passenger and sent with the booking`() {
+        val vm = viewModel()
+        vm.onEvent(HotelsEvent.ViewRooms(TestHotels.KOWHAI))
+        vm.onEvent(HotelsEvent.ContinueToDetails)
+        val sheet = vm.uiState.value.rooms!!
+        assertEquals(RoomsStep.Details, sheet.step)
+        assertEquals(ContactDetails("Tina Anderson", "tina.anderson@gmail.com", "+64 21 555 0199"), sheet.details.guest)
+
+        vm.onEvent(HotelsEvent.SelectArrival(ArrivalWindow.Late))
+        vm.onEvent(HotelsEvent.ToggleRequest(StayRequest.QuietRoom))
+        vm.onEvent(HotelsEvent.ToggleRequest(StayRequest.HighFloor))
+        vm.onEvent(HotelsEvent.ToggleRequest(StayRequest.QuietRoom))
+        vm.onEvent(HotelsEvent.NoteChanged("Anniversary"))
+        vm.onEvent(HotelsEvent.Reserve)
+
+        val sent = hotels.details.values.single()
+        assertEquals(ArrivalWindow.Late, sent.arrival)
+        assertEquals(setOf(StayRequest.HighFloor), sent.requests)
+        assertEquals("Anniversary", sent.note)
+    }
+
+    @Test
+    fun `a missing name or a bad email stops the booking and shows where`() {
+        val vm = viewModel()
+        vm.onEvent(HotelsEvent.ViewRooms(TestHotels.KOWHAI))
+        vm.onEvent(HotelsEvent.ContinueToDetails)
+        vm.onEvent(HotelsEvent.GuestChanged(ContactDetails("", "tina@", "")))
+        vm.onEvent(HotelsEvent.Reserve)
+        assertEquals(setOf(ContactProblem.NameMissing, ContactProblem.EmailInvalid), vm.uiState.value.rooms!!.problems)
+        assertTrue(hotels.reservations.isEmpty())
+
+        // Problems clear as the guest fixes them.
+        vm.onEvent(HotelsEvent.GuestChanged(ContactDetails("Tina Anderson", "tina@", "")))
+        assertEquals(setOf(ContactProblem.EmailInvalid), vm.uiState.value.rooms!!.problems)
+    }
+
+    @Test
+    fun `after booking, View in My trips closes the sheet and opens My trips`() = runTest {
+        val vm = viewModel()
+        vm.onEvent(HotelsEvent.ViewRooms(TestHotels.KOWHAI))
+        vm.onEvent(HotelsEvent.Reserve)
+        vm.effects.test {
+            vm.onEvent(HotelsEvent.OpenMyTrips)
+            assertEquals(HotelsEffect.OpenMyTrips, awaitItem())
+        }
+        assertNull(vm.uiState.value.rooms)
     }
 
     @Test

@@ -101,13 +101,15 @@ internal fun Stay.dateRange(): String =
     else "${checkIn.format(DayMonth)} – ${checkOut.format(DayMonth)}"
 
 @Composable
-fun HotelsRoute(onBack: () -> Unit, viewModel: HotelsViewModel = hiltViewModel()) {
+fun HotelsRoute(onBack: () -> Unit, onOpenMyTrips: () -> Unit, viewModel: HotelsViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val back by rememberUpdatedState(onBack)
+    val openTrips by rememberUpdatedState(onOpenMyTrips)
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
+                HotelsEffect.OpenMyTrips -> openTrips()
                 is HotelsEffect.OpenMap -> {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=" + Uri.encode(effect.query)))
                     try {

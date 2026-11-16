@@ -7,6 +7,8 @@ import com.skypass.core.domain.usecase.FilterHotelsUseCase
 import com.skypass.core.domain.usecase.GetAirportsUseCase
 import com.skypass.core.domain.usecase.GetHotelsUseCase
 import com.skypass.core.domain.usecase.ObserveSavedHotelsUseCase
+import com.skypass.core.domain.usecase.ContactProblem
+import com.skypass.core.domain.usecase.PrefillContactUseCase
 import com.skypass.core.domain.usecase.PriceStayUseCase
 import com.skypass.core.domain.usecase.ReserveHotelUseCase
 import com.skypass.core.domain.usecase.ResolveStayUseCase
@@ -14,9 +16,12 @@ import com.skypass.core.domain.usecase.RoomPrice
 import com.skypass.core.domain.usecase.SearchAirportsUseCase
 import com.skypass.core.domain.usecase.SetHotelSavedUseCase
 import com.skypass.core.domain.usecase.StayProblem
+import com.skypass.core.domain.usecase.ValidateContactUseCase
 import com.skypass.core.domain.usecase.ValidateStayUseCase
 import com.skypass.core.model.Airport
 import com.skypass.core.model.AppError
+import com.skypass.core.model.ArrivalWindow
+import com.skypass.core.model.ContactDetails
 import com.skypass.core.model.Hotel
 import com.skypass.core.model.HotelFilter
 import com.skypass.core.model.HotelReservation
@@ -24,6 +29,8 @@ import com.skypass.core.model.Outcome
 import com.skypass.core.model.ReservationError
 import com.skypass.core.model.RoomType
 import com.skypass.core.model.Stay
+import com.skypass.core.model.StayDetails
+import com.skypass.core.model.StayRequest
 import com.skypass.feature.hotels.navigation.HotelsDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -56,11 +63,18 @@ sealed interface ReserveState {
     data class Reserved(val reservation: HotelReservation) : ReserveState
 }
 
+/** The sheet's two steps: pick a room, then who's staying and how. */
+enum class RoomsStep { Room, Details }
+
 /** The "View rooms" sheet for one hotel. */
 data class RoomsSheet(
     val hotel: Hotel,
     val rooms: List<RoomPrice>,
     val selected: RoomType,
+    val step: RoomsStep = RoomsStep.Room,
+    val details: StayDetails = StayDetails(ContactDetails()),
+    /** Shown only after the guest tries to book, so the form doesn't open full of red. */
+    val problems: Set<ContactProblem> = emptySet(),
     val state: ReserveState = ReserveState.Choosing,
     val error: ReservationError? = null,
 ) {
@@ -96,8 +110,15 @@ sealed interface HotelsEvent {
 
     data class ViewRooms(val hotel: Hotel) : HotelsEvent
     data class SelectRoom(val room: RoomType) : HotelsEvent
+    data object ContinueToDetails : HotelsEvent
+    data object BackToRooms : HotelsEvent
+    data class GuestChanged(val guest: ContactDetails) : HotelsEvent
+    data class SelectArrival(val arrival: ArrivalWindow) : HotelsEvent
+    data class ToggleRequest(val request: StayRequest) : HotelsEvent
+    data class NoteChanged(val note: String) : HotelsEvent
     data object Reserve : HotelsEvent
     data object DismissRooms : HotelsEvent
+    data object OpenMyTrips : HotelsEvent
 
     data object Retry : HotelsEvent
 }
@@ -105,6 +126,9 @@ sealed interface HotelsEvent {
 sealed interface HotelsEffect {
     /** Show the city's hotels in a maps app. */
     data class OpenMap(val query: String) : HotelsEffect
+
+    /** The stay was booked: show it in My trips. */
+    data object OpenMyTrips : HotelsEffect
 }
 
 @HiltViewModel
@@ -116,6 +140,8 @@ class HotelsViewModel @Inject constructor(
     private val priceStay: PriceStayUseCase,
     private val validateStay: ValidateStayUseCase,
     private val reserveHotel: ReserveHotelUseCase,
+    private val prefillContact: PrefillContactUseCase,
+    private val validateContact: ValidateContactUseCase,
     private val getAirports: GetAirportsUseCase,
     private val searchAirports: SearchAirportsUseCase,
     observeSaved: ObserveSavedHotelsUseCase,
@@ -138,6 +164,9 @@ class HotelsViewModel @Inject constructor(
     val effects = _effects.receiveAsFlow()
 
     private var all: List<Hotel> = emptyList()
+
+    /** The traveller's saved details, loaded once and copied into each new booking form. */
+    private var prefill: ContactDetails? = null
     private var airports: List<Airport> = emptyList()
 
     /** One per reservation attempt, so a retry after a dropped connection never books twice. */
@@ -180,10 +209,24 @@ class HotelsViewModel @Inject constructor(
 
             is HotelsEvent.ViewRooms -> openRooms(event.hotel)
             is HotelsEvent.SelectRoom -> _uiState.update { s -> s.copy(rooms = s.rooms?.copy(selected = event.room, error = null)) }
+            HotelsEvent.ContinueToDetails -> updateRooms { it.copy(step = RoomsStep.Details, error = null) }
+            HotelsEvent.BackToRooms -> updateRooms { if (it.state == ReserveState.Choosing) it.copy(step = RoomsStep.Room, error = null) else it }
+            is HotelsEvent.GuestChanged -> updateRooms { sheet ->
+                // Once shown, problems clear as the guest fixes them.
+                val problems = if (sheet.problems.isEmpty()) sheet.problems else validateContact(event.guest)
+                sheet.copy(details = sheet.details.copy(guest = event.guest), problems = problems)
+            }
+            is HotelsEvent.SelectArrival -> updateRooms { it.copy(details = it.details.copy(arrival = event.arrival)) }
+            is HotelsEvent.ToggleRequest -> updateRooms { sheet ->
+                val requests = sheet.details.requests.let { if (event.request in it) it - event.request else it + event.request }
+                sheet.copy(details = sheet.details.copy(requests = requests))
+            }
+            is HotelsEvent.NoteChanged -> updateRooms { it.copy(details = it.details.copy(note = event.note.take(StayDetails.MAX_NOTE))) }
             HotelsEvent.Reserve -> reserve()
-            HotelsEvent.DismissRooms -> {
-                if (_uiState.value.rooms?.state is ReserveState.Reserved) attemptId = newAttempt()
-                _uiState.update { it.copy(rooms = null) }
+            HotelsEvent.DismissRooms -> closeRooms()
+            HotelsEvent.OpenMyTrips -> {
+                closeRooms()
+                send(HotelsEffect.OpenMyTrips)
             }
 
             HotelsEvent.Retry -> _uiState.value.stay?.let { load(it.city) }
@@ -219,16 +262,41 @@ class HotelsViewModel @Inject constructor(
         val stay = _uiState.value.stay ?: return
         val rooms = priceStay.rooms(hotel, stay.nights, stay.guests)
         val first = rooms.firstOrNull()?.room ?: return
-        _uiState.update { it.copy(rooms = RoomsSheet(hotel, rooms, first)) }
+        _uiState.update { it.copy(rooms = RoomsSheet(hotel, rooms, first, details = StayDetails(prefill ?: ContactDetails()))) }
+        if (prefill == null) {
+            viewModelScope.launch {
+                val contact = prefillContact().also { prefill = it }
+                // Fill only what the guest hasn't typed yet.
+                updateRooms { sheet ->
+                    val guest = sheet.details.guest
+                    val filled = ContactDetails(
+                        name = guest.name.ifBlank { contact.name },
+                        email = guest.email.ifBlank { contact.email },
+                        phone = guest.phone.ifBlank { contact.phone },
+                    )
+                    sheet.copy(details = sheet.details.copy(guest = filled))
+                }
+            }
+        }
+    }
+
+    private fun closeRooms() {
+        if (_uiState.value.rooms?.state is ReserveState.Reserved) attemptId = newAttempt()
+        _uiState.update { it.copy(rooms = null) }
     }
 
     private fun reserve() {
         val sheet = _uiState.value.rooms ?: return
         val stay = _uiState.value.stay ?: return
         if (sheet.state != ReserveState.Choosing) return
-        updateRooms { it.copy(state = ReserveState.Reserving, error = null) }
+        val problems = validateContact(sheet.details.guest)
+        if (problems.isNotEmpty()) {
+            updateRooms { it.copy(step = RoomsStep.Details, problems = problems) }
+            return
+        }
+        updateRooms { it.copy(state = ReserveState.Reserving, error = null, problems = emptySet()) }
         viewModelScope.launch {
-            when (val result = reserveHotel(sheet.hotel, sheet.selected, stay, attemptId)) {
+            when (val result = reserveHotel(sheet.hotel, sheet.selected, stay, sheet.details, attemptId)) {
                 is Outcome.Success -> updateRooms { it.copy(state = ReserveState.Reserved(result.value)) }
                 is Outcome.Failure -> updateRooms { it.copy(state = ReserveState.Choosing, error = result.error) }
             }

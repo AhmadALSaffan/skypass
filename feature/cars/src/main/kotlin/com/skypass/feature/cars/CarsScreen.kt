@@ -44,6 +44,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -72,6 +74,7 @@ import com.skypass.core.designsystem.component.SkypassTextButton
 import com.skypass.core.designsystem.component.SkypassToggle
 import com.skypass.core.designsystem.component.SkypassTopBar
 import com.skypass.core.designsystem.icon.SkypassIcons
+import com.skypass.core.designsystem.component.carImageRes
 import com.skypass.core.designsystem.theme.Shapes
 import com.skypass.core.designsystem.theme.SkypassTheme
 import com.skypass.core.designsystem.theme.animateCountUp
@@ -95,22 +98,17 @@ private val WhenFormat = DateTimeFormatter.ofPattern("EEE d MMM · HH:mm", Local
 /** "Fri 20 Nov · 14:00", as on the board. */
 internal fun LocalDateTime.rentalLabel(): String = format(WhenFormat)
 
-/** The car pictures bundled with the app, by the catalogue's image path. */
-@DrawableRes
-internal fun carImage(path: String): Int = when (path.substringAfterLast('/').substringBefore('.')) {
-    "nissan-note" -> R.drawable.car_nissan_note
-    "jeep-wrangler" -> R.drawable.car_jeep_wrangler
-    "nissan-juke" -> R.drawable.car_nissan_juke
-    "tesla-model-3" -> R.drawable.car_tesla_model_3
-    "tesla-model-s" -> R.drawable.car_tesla_model_s
-    "ford-mustang" -> R.drawable.car_ford_mustang
-    "chevrolet-camaro" -> R.drawable.car_chevrolet_camaro
-    else -> R.drawable.car_kia_cerato
-}
-
 @Composable
-fun CarsRoute(onBack: () -> Unit, viewModel: CarsViewModel = hiltViewModel()) {
+fun CarsRoute(onBack: () -> Unit, onOpenMyTrips: () -> Unit, viewModel: CarsViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val openTrips by rememberUpdatedState(onOpenMyTrips)
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                CarsEffect.OpenMyTrips -> openTrips()
+            }
+        }
+    }
     CarsScreen(state, viewModel::onEvent, onBack)
 }
 
@@ -161,7 +159,12 @@ fun CarsScreen(state: CarsUiState, onEvent: (CarsEvent) -> Unit, onBack: () -> U
 
     state.picker?.let { PlacePickerSheet(it, state.rental, onEvent) }
     if (state.pickingDates) state.rental?.let { RentalDatesDialog(it, state.firstBookableDate, onEvent) }
-    (state.reserve as? CarReserveState.Reserved)?.let { ReservedSheet(it, state.rental, onDone = { onEvent(CarsEvent.DismissReserved) }) }
+    state.checkout?.let { sheet ->
+        val car = state.selected
+        val rental = state.rental
+        if (car != null && rental != null) CheckoutSheet(sheet, car, rental, state, onEvent)
+    }
+    (state.reserve as? CarReserveState.Reserved)?.let { ReservedSheet(it, state.rental, onEvent) }
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -308,7 +311,7 @@ private fun CarCard(car: Car, selected: Boolean, onSelect: () -> Unit, modifier:
                 }
             }
             Image(
-                painter = painterResource(carImage(car.imagePath)),
+                painter = painterResource(carImageRes(car.imagePath)),
                 contentDescription = car.name,
                 contentScale = ContentScale.Fit,
                 alignment = Alignment.BottomCenter,
@@ -379,7 +382,7 @@ private fun Footer(state: CarsUiState, onEvent: (CarsEvent) -> Unit) {
             .navigationBarsPadding(),
     ) {
         HorizontalDivider(color = colors.border)
-        state.reserveError?.let { error ->
+        state.reserveError?.takeIf { state.checkout == null }?.let { error ->
             Text(
                 stringResource(
                     when (error) {
@@ -416,8 +419,7 @@ private fun Footer(state: CarsUiState, onEvent: (CarsEvent) -> Unit) {
             PrimaryButton(
                 text = stringResource(R.string.cars_reserve),
                 onClick = { onEvent(CarsEvent.Reserve) },
-                enabled = state.canReserve || state.reserve == CarReserveState.Reserving,
-                loading = state.reserve == CarReserveState.Reserving,
+                enabled = state.canReserve,
                 height = 54.dp,
                 modifier = Modifier.weight(1f),
             )

@@ -199,9 +199,9 @@ enum class HotelFilter(val label: String, val matches: (Hotel) -> Boolean) {
     FreeCancel("Free cancel", { it.freeCancellation }),
 }
 
-data class HotelReservation(val reference: String, val totalUsd: Int, val nights: Int)
+data class HotelReservation(val reference: String, val totalUsd: Int, val nights: Int, val nightlyUsd: Int = 0)
 
-enum class ReservationError { InvalidDates, TooManyGuests, Network, Unknown }
+enum class ReservationError { InvalidDates, TooManyGuests, InvalidDetails, Network, Unknown }
 
 /** The board's car type chips, in order. */
 enum class CarType(val label: String) {
@@ -256,4 +256,11 @@ data class Rental(
     }
 }
 
-data class CarReservation(val reference: String, val totalUsd: Int, val days: Int, val oneWayFeeUsd: Int)
+data class CarReservation(
+    val reference: String,
+    val totalUsd: Int,
+    val days: Int,
+    val oneWayFeeUsd: Int,
+    val extrasUsd: Int = 0,
+    val youngDriverFeeUsd: Int = 0,
+)

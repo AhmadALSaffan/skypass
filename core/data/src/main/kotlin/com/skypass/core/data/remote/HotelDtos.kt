@@ -43,6 +43,12 @@ internal data class HotelReservationDto(
     val reference: String,
     @SerialName("total_usd") val totalUsd: Double,
     val nights: Int,
+    @SerialName("nightly_usd") val nightlyUsd: Double? = null,
 ) {
-    fun toModel() = HotelReservation(reference = reference, totalUsd = totalUsd.roundToInt(), nights = nights)
+    fun toModel() = HotelReservation(
+        reference = reference,
+        totalUsd = totalUsd.roundToInt(),
+        nights = nights,
+        nightlyUsd = nightlyUsd?.roundToInt() ?: (totalUsd / nights.coerceAtLeast(1)).roundToInt(),
+    )
 }

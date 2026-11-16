@@ -6,7 +6,10 @@ import com.skypass.core.model.Airport
 import com.skypass.core.model.AppError
 import com.skypass.core.model.Car
 import com.skypass.core.model.CarReservation
+import com.skypass.core.model.CarExtra
 import com.skypass.core.model.CarType
+import com.skypass.core.model.DriverAge
+import com.skypass.core.model.DriverDetails
 import com.skypass.core.model.Outcome
 import com.skypass.core.model.Rental
 import com.skypass.core.model.RentalPlace
@@ -85,16 +88,32 @@ class FilterCarsUseCase @Inject constructor() {
     operator fun invoke(all: List<Car>, type: CarType): List<Car> = all.filter { it.type == type }
 }
 
-data class RentalPrice(val days: Int, val carUsd: Int, val oneWayFeeUsd: Int) {
-    val totalUsd: Int get() = carUsd + oneWayFeeUsd
+data class RentalPrice(
+    val days: Int,
+    val carUsd: Int,
+    val oneWayFeeUsd: Int,
+    val extrasUsd: Int = 0,
+    val youngDriverFeeUsd: Int = 0,
+) {
+    val totalUsd: Int get() = carUsd + oneWayFeeUsd + extrasUsd + youngDriverFeeUsd
 }
 
-/** The server's sum: daily rate × started days, plus the one-way fee when returned elsewhere. */
+/**
+ * The server's sum: daily rate × started days, extras and the young driver fee per day, plus the
+ * one-way fee when the car goes back somewhere else.
+ */
 class PriceRentalUseCase @Inject constructor() {
-    operator fun invoke(car: Car, rental: Rental): RentalPrice = RentalPrice(
+    operator fun invoke(
+        car: Car,
+        rental: Rental,
+        extras: Set<CarExtra> = emptySet(),
+        age: DriverAge = DriverAge.Adult,
+    ): RentalPrice = RentalPrice(
         days = rental.days,
         carUsd = car.pricePerDayUsd * rental.days,
         oneWayFeeUsd = if (rental.sameReturn) 0 else Rental.ONE_WAY_FEE_USD,
+        extrasUsd = extras.sumOf { it.perDayUsd } * rental.days,
+        youngDriverFeeUsd = age.feePerDayUsd * rental.days,
     )
 }
 
@@ -109,7 +128,39 @@ class ValidateRentalUseCase @Inject constructor(private val clock: Clock) {
     }
 }
 
-class ReserveCarUseCase @Inject constructor(private val cars: CarRepository) {
-    suspend operator fun invoke(car: Car, rental: Rental, attemptId: String): Outcome<CarReservation, ReservationError> =
-        cars.reserve(car, rental, attemptId)
+class ReserveCarUseCase @Inject constructor(
+    private val cars: CarRepository,
+    private val validateContact: ValidateContactUseCase,
+) {
+    suspend operator fun invoke(car: Car, rental: Rental, details: DriverDetails, attemptId: String): Outcome<CarReservation, ReservationError> {
+        if (validateContact(details.driver).isNotEmpty() || !FLIGHT_NUMBER.matches(details.flightNumber.trim())) {
+            return Outcome.Failure(ReservationError.InvalidDetails)
+        }
+        return cars.reserve(car, rental, details, attemptId)
+    }
+
+    companion object {
+        /** Empty, or an airline code and a number: "NZ5", "QF 144". */
+        val FLIGHT_NUMBER = Regex("""^$|^[A-Za-z0-9]{2} ?\d{1,4}$""")
+    }
+}
+
+/**
+ * The driver form, prefilled: the traveller's saved details, and the flight number when their next
+ * flight lands where they pick the car up (so the desk waits if it's late).
+ */
+class PrefillDriverUseCase @Inject constructor(
+    private val prefillContact: PrefillContactUseCase,
+    private val trips: TripRepository,
+) {
+    suspend operator fun invoke(pickupAirport: String?): DriverDetails {
+        val contact = prefillContact()
+        val trip = withTimeoutOrNull(TRIP_WAIT_MS) { trips.upcomingTrip().first() }
+        val flight = trip?.takeIf { it.destinationCode == pickupAirport }?.flightNumber.orEmpty()
+        return DriverDetails(driver = contact, flightNumber = flight)
+    }
+
+    private companion object {
+        const val TRIP_WAIT_MS = 1_500L
+    }
 }

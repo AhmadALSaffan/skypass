@@ -9,8 +9,8 @@ android {
 
     defaultConfig {
         applicationId = "com.skypass"
-        versionCode = 204
-        versionName = "1.0.0"
+        versionCode = 205
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

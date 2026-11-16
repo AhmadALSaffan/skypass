@@ -71,6 +71,7 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.skypass.core.designsystem.component.HeartButton
 import com.skypass.core.designsystem.component.FilterChip
 import com.skypass.core.designsystem.component.IconCircleButton
 import com.skypass.core.designsystem.component.SkypassTextButton
@@ -258,7 +259,13 @@ private fun HotelCard(
                     modifier = Modifier.matchParentSize(),
                 )
             }
-            HeartButton(saved, onToggleSaved, Modifier.align(Alignment.TopEnd).padding(10.dp))
+            HeartButton(
+                saved = saved,
+                onClick = onToggleSaved,
+                saveLabel = stringResource(R.string.hotels_save),
+                unsaveLabel = stringResource(R.string.hotels_unsave),
+                modifier = Modifier.align(Alignment.TopEnd).padding(10.dp),
+            )
             if (hotel.freeCancellation) {
                 Text(
                     stringResource(R.string.hotels_free_cancel),
@@ -338,43 +345,6 @@ private fun HotelCard(
                 ViewRoomsButton(onViewRooms)
             }
         }
-    }
-}
-
-/** Hollow heart that fills red with a little bounce when saved. */
-@Composable
-private fun HeartButton(saved: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val haptics = LocalHapticFeedback.current
-    val alert = SkypassTheme.colors.alert
-    val tint by animateColorAsState(if (saved) alert else Color(0xFF1C2550), tween(200), label = "heartTint")
-    var bounces by remember { mutableStateOf(0) }
-    val scale by animateFloatAsState(
-        targetValue = if (bounces % 2 == 1) 1.25f else 1f,
-        animationSpec = spring(dampingRatio = 0.35f, stiffness = 900f),
-        finishedListener = { if (bounces % 2 == 1) bounces++ },
-        label = "heartScale",
-    )
-    Box(
-        modifier
-            .size(44.dp)
-            .clip(CircleShape)
-            .background(Color.White)
-            .clickable(
-                role = Role.Button,
-                onClickLabel = stringResource(if (saved) R.string.hotels_unsave else R.string.hotels_save),
-            ) {
-                haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                if (!saved) bounces++
-                onClick()
-            },
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(
-            if (saved) SkypassIcons.HeartFilled else SkypassIcons.Heart,
-            contentDescription = stringResource(if (saved) R.string.hotels_unsave else R.string.hotels_save),
-            tint = tint,
-            modifier = Modifier.size(19.dp).scale(scale),
-        )
     }
 }
 

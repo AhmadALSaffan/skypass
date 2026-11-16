@@ -116,6 +116,15 @@ Every flight, stay and car you've booked, kept in Supabase so it follows you to 
 | **Light** | <img src="docs/screenshots/light/trips.jpg" width="170"> | <img src="docs/screenshots/light/trip-stay.jpg" width="170"> |
 | **Dark** | <img src="docs/screenshots/dark/trips.jpg" width="170"> | <img src="docs/screenshots/dark/trip-stay.jpg" width="170"> |
 
+### Profile and Saved
+
+Your tier and travel stats, counted on the server from your own bookings, and everything you've saved: flights with today's fare, stays and places.
+
+| | Profile | Personal information | Saved flights | Saved places |
+|:---:|:---:|:---:|:---:|:---:|
+| **Light** | <img src="docs/screenshots/light/profile.jpg" width="170"> | <img src="docs/screenshots/light/profile-info.jpg" width="170"> | <img src="docs/screenshots/light/saved.jpg" width="170"> | <img src="docs/screenshots/light/saved-places.jpg" width="170"> |
+| **Dark** | <img src="docs/screenshots/dark/profile.jpg" width="170"> | <img src="docs/screenshots/dark/profile-info.jpg" width="170"> | <img src="docs/screenshots/dark/saved.jpg" width="170"> | <img src="docs/screenshots/dark/saved-places.jpg" width="170"> |
+
 ---
 
 ## Features
@@ -169,6 +178,16 @@ Every flight, stay and car you've booked, kept in Supabase so it follows you to 
   - Flights, stays and cars in tabs, upcoming first, then past and cancelled.
   - A flight opens its boarding pass. A stay or car opens every detail you entered, the price breakdown and directions.
   - Free cancellation from the app, with an "are you sure" step, until the day before check-in or 48 hours before pick-up. The server enforces the same rule.
+- 👤 **Profile**:
+  - Your tier (Blue, Silver at 10k miles, Gold at 25k, Platinum at 50k) with a bar to the next one, and Trips, Countries and Miles tiles that count up. Miles are the great-circle distance of the flights you've booked, worked out in Postgres.
+  - Personal information: change your name and home airport (Explore and Saved price fares from it). Column privileges on `profiles` mean the app can't touch the tier or miles.
+  - Passengers & travel documents: add, edit and remove travellers with the same passport form booking uses, with a warning when a passport expires within six months.
+  - Badges update live: the saved count follows every heart and bookmark in the app.
+  - Payment methods and a help centre with quick answers.
+- 🔖 **Saved**:
+  - Flights (with today's economy fare, and Departed once they've gone), stays and places, in tabs.
+  - A saved flight opens booking, a stay opens hotels in its city, and a place fills Home's search.
+  - Remove with Undo. Explore's destination tiles now have hearts too.
 - ⚡ **Fast start**: the splash screen only waits for the session saved on the phone, never the network; the Supabase client is built off the main thread while the activity starts. Data calls wait for a stale token's refresh on their own.
 - 🌗 **Light and dark**: every screen, from the same design tokens.
 - ♿ **Every state designed**: loading skeletons, empty, offline and error states with retry.
@@ -187,7 +206,7 @@ Every flight, stay and car you've booked, kept in Supabase so it follows you to 
 - **MVVM, one direction.** Each screen is a `XRoute` (collects state and one-off effects, gets its ViewModel from Hilt), then a stateless `XScreen(uiState, onEvent)`, then a `XViewModel` holding a `StateFlow` of UI state, a sealed `Event` and a `Channel` of `Effect`s.
 - **Single responsibility.** One use case per action: `SearchFlightsUseCase`, `CalculateBookingTotalUseCase`, `ValidatePassengerUseCase`, `PayForTripUseCase`, `GetExploreCatalogUseCase`, `ReserveHotelUseCase`, `PriceRentalUseCase` and more. ViewModels only map state.
 - **Open/closed.** Sorting is a `FlightSortStrategy`. The price is a chain of `PriceRule`s (fare, promo, tax, seat fee, bags). Each hotel chip is a rule on `HotelFilter`. A new rule is a new class or entry.
-- **Interface segregation.** Small repositories: `FlightSearchRepository`, `SeatMapRepository`, `PassengerRepository`, `BookingRepository`, `ExploreRepository`, `SearchIntentRepository`, `HotelRepository`, `SavedHotelsRepository`, `CarRepository`, `MyTripsRepository` and more. There's no "god" repository.
+- **Interface segregation.** Small repositories: `FlightSearchRepository`, `SeatMapRepository`, `PassengerRepository`, `BookingRepository`, `ExploreRepository`, `SearchIntentRepository`, `HotelRepository`, `SavedHotelsRepository`, `CarRepository`, `MyTripsRepository`, `ProfileStatsRepository`, `EditProfileRepository`, `SavedListRepository` and more. Shared screen pieces that need both the design system and the domain (the passenger form) live in `:core:ui`. There's no "god" repository.
 - **Dependency inversion.** Features see interfaces from `:core:domain` only; Hilt binds the Supabase implementations in `:core:data`. Fakes in `:core:testing` replace them in tests.
 - **Server as the source of truth.** Prices, seat holds, promo codes and the PNR are computed in Postgres functions. The app shows the same numbers.
 
@@ -196,7 +215,7 @@ Every flight, stay and car you've booked, kept in Supabase so it follows you to 
 | | |
 |---|---|
 | Tables | `airports`, `airlines`, `routes`, `flights`, `flight_instances`, `cabin_layouts`, `destinations`, `deals`, `promo_codes`, `profiles`, `passengers`, `bookings`, `booking_passengers`, `booking_seats`, `saved_items`, `hotels`, `hotel_reservations`, `cars`, `rental_reservations`, `user_settings` |
-| Functions | `search_flights`, `date_price_strip`, `flight_offer`, `get_seat_map`, `create_booking`, `pay_booking`, `check_promo`, `boarding_pass`, `next_trip`, `explore_destinations`, `reserve_hotel`, `reserve_car`, `my_flights`, `cancel_reservation` |
+| Functions | `search_flights`, `date_price_strip`, `flight_offer`, `get_seat_map`, `create_booking`, `pay_booking`, `check_promo`, `boarding_pass`, `next_trip`, `explore_destinations`, `reserve_hotel`, `reserve_car`, `my_flights`, `cancel_reservation`, `profile_stats`, `miles_between`, `saved_flights`, `saved_hotels`, `saved_destinations` |
 | Security | Row-level security on every user table; catalogue tables are read-only; functions run with a fixed `search_path` |
 | Realtime | `flight_instances` updates, for live gate and status changes |
 | Data | 924,067 departures from 2026-11-15 to 2027-11-15, generated in SQL from a compact route list; 5 hotels in every city and 8 rental cars at every airport on the network |
@@ -296,6 +315,7 @@ core/
 ├── auth/               Google sign-in with Credential Manager
 ├── datastore/          onboarding and preferences
 ├── designsystem/       theme, tokens, motion, ticket shapes, icons, components
+├── ui/                 shared forms that need the domain (the passenger form)
 └── testing/            fakes and test data
 feature/
 ├── onboarding/         the three animated scenes
@@ -308,7 +328,9 @@ feature/
 ├── explore/            tiles, deal, categories, destination grid
 ├── hotels/             stays, filters, the stay sheet, rooms, guest details
 ├── cars/               the trip card, car types, cars, driver and extras
-└── trips/              My trips: flights, stays and cars, details and cancelling
+├── trips/              My trips: flights, stays and cars, details and cancelling
+├── profile/            the account card, tier, stats, menu, personal info, travellers
+└── saved/              saved flights, stays and places
 supabase/migrations/    schema, functions, security, seed data
 docs/                   screenshots and GIFs for this README
 ```

@@ -59,13 +59,17 @@ import com.skypass.feature.onboarding.navigation.onboardingScreen
 import com.skypass.feature.results.navigation.ResultsDestination
 import com.skypass.feature.results.navigation.resultsScreen
 import com.skypass.feature.results.navigation.toResultsDestination
+import com.skypass.core.model.Cabin
+import com.skypass.feature.profile.navigation.PassengersDestination
+import com.skypass.feature.profile.navigation.ProfileDestination
+import com.skypass.feature.profile.navigation.passengersScreen
+import com.skypass.feature.profile.navigation.profileScreen
+import com.skypass.feature.saved.navigation.SavedDestination
+import com.skypass.feature.saved.navigation.savedScreen
 import com.skypass.feature.trips.navigation.TripsDestination
 import com.skypass.feature.trips.navigation.tripsScreen
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
-
-@Serializable data object SavedDestination
-@Serializable data object ProfileDestination
 
 /** The four tabs from the board, icon-only with an active dot. */
 private enum class Tab(val route: Any, val routeClass: KClass<*>, val item: BottomBarItem) {
@@ -149,11 +153,25 @@ fun SkypassNavHost(startScreen: StartScreen) {
                 onFindStays = { navController.navigate(HotelsDestination()) },
                 onFindCars = { navController.navigate(CarsDestination) },
             )
-            composable<SavedDestination> { ComingSoon("Saved", phase = 11) }
-            composable<ProfileDestination> {
-                ProfilePlaceholder(
+            savedScreen(
+                onBookFlight = { instanceId ->
+                    navController.navigate(BookingDestination(instanceId, null, 1, Cabin.Economy.apiValue))
+                },
+                onOpenHotels = { city -> navController.navigate(HotelsDestination(city)) },
+                onSearchFlights = { navController.switchTab(Tab.Home) },
+                onOpenExplore = { navController.switchTab(Tab.Explore) },
+            )
+            profileScreen(
+                onSettings = { navController.navigate(SettingsDestination) },
+                onPassengers = { navController.navigate(PassengersDestination) },
+                onSaved = { navController.switchTab(Tab.Saved) },
+                onTrips = { navController.navigate(TripsDestination()) },
+            )
+            passengersScreen(onBack = { navController.popBackStack() })
+            composable<SettingsDestination> {
+                SettingsPlaceholder(
+                    onBack = { navController.popBackStack() },
                     onSignedOut = { navController.replaceAll(SignInDestination) },
-                    onMyTrips = { navController.navigate(TripsDestination()) },
                 )
             }
             resultsScreen(

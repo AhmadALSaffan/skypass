@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="saved_title">Saved</string>
+    <string name="saved_subtitle">Flights, stays and places you\'ve kept for later</string>
+    <string name="saved_tab_flights">Flights</string>
+    <string name="saved_tab_stays">Stays</string>
+    <string name="saved_tab_destinations">Places</string>
+    <string name="saved_nonstop">Nonstop</string>
+    <string name="saved_stops">%1$d stop</string>
+    <string name="saved_per_adult">" / adult"</string>
+    <string name="saved_per_night">" / night"</string>
+    <string name="saved_departed">Departed</string>
+    <string name="saved_destination_from">%1$s · from %2$s</string>
+    <string name="saved_remove_flight">Remove flight from Saved</string>
+    <string name="saved_remove_hotel">Remove hotel from Saved</string>
+    <string name="saved_remove_destination">Remove %1$s from Saved</string>
+    <string name="saved_removed">Removed from Saved</string>
+    <string name="saved_undo">Undo</string>
+
+    <string name="saved_empty_flights">No saved flights</string>
+    <string name="saved_empty_flights_body">Tap the bookmark on any result to keep it here, with today\'s fare.</string>
+    <string name="saved_find_flights">Search flights</string>
+    <string name="saved_empty_stays">No saved stays</string>
+    <string name="saved_empty_stays_body">Heart a hotel to compare it later.</string>
+    <string name="saved_find_stays">Browse hotels</string>
+    <string name="saved_empty_destinations">No saved places</string>
+    <string name="saved_empty_destinations_body">Heart a destination on Explore to dream about it here.</string>
+    <string name="saved_find_destinations">Explore destinations</string>
+    <string name="saved_offline_title">Can\'t load Saved</string>
+    <string name="saved_offline_body">Check your connection and try again.</string>
+    <string name="saved_retry">Try again</string>
+</resources>

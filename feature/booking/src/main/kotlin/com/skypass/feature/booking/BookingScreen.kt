@@ -1,5 +1,6 @@
 package com.skypass.feature.booking
 
+import com.skypass.core.ui.PassengerSheet
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.RepeatMode
@@ -147,7 +148,14 @@ internal fun BookingScreen(uiState: BookingUiState, onEvent: (BookingEvent) -> U
         }
         Footer(uiState, onContinue = { onEvent(BookingEvent.Continue) })
     }
-    uiState.editor?.let { PassengerSheet(it, onEvent) }
+    uiState.editor?.let { editor ->
+        PassengerSheet(
+            editor = editor,
+            onChange = { onEvent(BookingEvent.UpdateEditor(it)) },
+            onSave = { onEvent(BookingEvent.SavePassenger) },
+            onDismiss = { onEvent(BookingEvent.DismissEditor) },
+        )
+    }
 }
 
 @Composable

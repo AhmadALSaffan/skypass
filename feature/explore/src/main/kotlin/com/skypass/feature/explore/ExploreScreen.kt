@@ -80,6 +80,7 @@ import coil3.request.crossfade
 import com.skypass.core.designsystem.component.AnzKoru
 import com.skypass.core.designsystem.component.AnzWordmark
 import com.skypass.core.designsystem.component.Eyebrow
+import com.skypass.core.designsystem.component.HeartButton
 import com.skypass.core.designsystem.component.FilterChip
 import com.skypass.core.designsystem.component.SkypassTextButton
 import com.skypass.core.designsystem.component.StatusPill
@@ -186,6 +187,8 @@ fun ExploreScreen(state: ExploreUiState, onEvent: (ExploreEvent) -> Unit, modifi
                 itemsIndexed(state.destinations) { index, destination ->
                     DestinationTile(
                         destination,
+                        saved = destination.id in state.savedIds,
+                        onToggleSaved = { onEvent(ExploreEvent.ToggleSaved(destination)) },
                         onClick = { onEvent(ExploreEvent.DestinationTapped(destination)) },
                         modifier = Modifier.animateItem().reveal(5 + index / 2),
                     )
@@ -409,13 +412,20 @@ private fun CategoryChips(selected: ExploreCategory, onSelect: (ExploreCategory)
 }
 
 @Composable
-private fun DestinationTile(destination: Destination, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun DestinationTile(
+    destination: Destination,
+    saved: Boolean,
+    onToggleSaved: () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val colors = SkypassTheme.colors
     val interaction = remember { MutableInteractionSource() }
     val price = usd(destination.fromPriceUsd)
     val subtitle = stringResource(R.string.explore_country_price, destination.country, price)
+    Box(modifier) {
     Column(
-        modifier
+        Modifier
             .pressScale(interaction)
             .clickable(interaction, null, role = Role.Button, onClick = onClick)
             .clearAndSetSemantics { contentDescription = "${destination.city}, $subtitle" },
@@ -445,6 +455,16 @@ private fun DestinationTile(destination: Destination, onClick: () -> Unit, modif
             Text(destination.city, style = SkypassTheme.typography.labelMd.copy(fontWeight = FontWeight.Bold), color = colors.ink, maxLines = 1)
             Text(subtitle, style = SkypassTheme.typography.caption, color = colors.text2, maxLines = 1)
         }
+    }
+        // Outside the tile's merged semantics, so TalkBack reads it as its own button.
+        HeartButton(
+            saved = saved,
+            onClick = onToggleSaved,
+            saveLabel = stringResource(R.string.explore_save, destination.city),
+            unsaveLabel = stringResource(R.string.explore_unsave, destination.city),
+            size = 36.dp,
+            modifier = Modifier.align(Alignment.TopEnd).padding(8.dp),
+        )
     }
 }
 

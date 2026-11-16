@@ -6,7 +6,9 @@ import com.skypass.core.domain.usecase.FilterDestinationsUseCase
 import com.skypass.core.domain.usecase.FindNearestAirportUseCase
 import com.skypass.core.domain.usecase.GetAirportsUseCase
 import com.skypass.core.domain.usecase.GetExploreCatalogUseCase
+import com.skypass.core.domain.usecase.ObserveSavedDestinationsUseCase
 import com.skypass.core.domain.usecase.RequestFlightSearchUseCase
+import com.skypass.core.domain.usecase.SetDestinationSavedUseCase
 import com.skypass.core.domain.usecase.ResolveOriginAirportUseCase
 import com.skypass.core.domain.usecase.SearchAirportsUseCase
 import com.skypass.core.model.AppError
@@ -17,6 +19,7 @@ import com.skypass.core.testing.FakeAirportRepository
 import com.skypass.core.testing.FakeExploreRepository
 import com.skypass.core.testing.FakeLocationRepository
 import com.skypass.core.testing.FakeProfileRepository
+import com.skypass.core.testing.FakeSavedDestinationsRepository
 import com.skypass.core.testing.FakeSearchIntentRepository
 import com.skypass.core.testing.MainDispatcherExtension
 import com.skypass.core.testing.TestExplore
@@ -46,7 +49,20 @@ class ExploreViewModelTest {
         filterDestinations = FilterDestinationsUseCase(),
         searchAirports = SearchAirportsUseCase(),
         requestFlightSearch = RequestFlightSearchUseCase(intents),
+        observeSaved = ObserveSavedDestinationsUseCase(savedDestinations),
+        setSaved = SetDestinationSavedUseCase(savedDestinations),
     )
+
+    private val savedDestinations = FakeSavedDestinationsRepository()
+
+    @Test
+    fun `the heart saves a destination for the Saved tab, and a second tap removes it`() {
+        val vm = viewModel()
+        vm.onEvent(ExploreEvent.ToggleSaved(TestExplore.LISBON))
+        assertEquals(setOf("d-2"), vm.uiState.value.savedIds)
+        vm.onEvent(ExploreEvent.ToggleSaved(TestExplore.LISBON))
+        assertTrue(vm.uiState.value.savedIds.isEmpty())
+    }
 
     @Test
     fun `loads the deal and the grid priced from the profile's airport`() {

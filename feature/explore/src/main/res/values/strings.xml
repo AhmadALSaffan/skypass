@@ -20,4 +20,6 @@
     <string name="explore_offline_body">Check your connection and try again.</string>
     <string name="explore_retry">Try again</string>
     <string name="explore_photo">photo</string>
+    <string name="explore_save">Save %1$s</string>
+    <string name="explore_unsave">Remove %1$s from Saved</string>
 </resources>

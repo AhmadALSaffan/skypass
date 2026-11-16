@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_title">Profile</string>
+    <string name="profile_settings">Settings</string>
+    <string name="profile_guest_name">Guest traveller</string>
+    <string name="profile_guest_email">Signed in as a guest</string>
+    <string name="profile_no_email">No email on this account</string>
+    <string name="profile_to_next_tier">%1$s miles to %2$s</string>
+    <string name="profile_top_tier">You\'re at the top tier. Thanks for flying with us.</string>
+    <plurals name="profile_trips">
+        <item quantity="one">Trip</item>
+        <item quantity="other">Trips</item>
+    </plurals>
+    <plurals name="profile_countries">
+        <item quantity="one">Country</item>
+        <item quantity="other">Countries</item>
+    </plurals>
+    <string name="profile_miles">Miles</string>
+    <string name="profile_offline">Can\'t load your profile. Check your connection.</string>
+    <string name="profile_retry">Try again</string>
+
+    <string name="profile_personal_info">Personal information</string>
+    <string name="profile_passengers">Passengers &amp; travel documents</string>
+    <string name="profile_payments">Payment methods</string>
+    <string name="profile_saved">Saved flights &amp; stays</string>
+    <string name="profile_trips_history">Trip history</string>
+    <string name="profile_help">Help centre</string>
+
+    <string name="profile_personal_info_hint">Your name on bookings, and the airport fares start from.</string>
+    <string name="profile_full_name">Full name</string>
+    <string name="profile_full_name_hint">As on your passport</string>
+    <string name="profile_problem_name">Enter your full name.</string>
+    <string name="profile_email">Email</string>
+    <string name="profile_email_hint">Comes from how you signed in, so it can\'t be changed here.</string>
+    <string name="profile_home_airport">Home airport</string>
+    <string name="profile_home_airport_hint">Explore and Saved price fares from here when your location is off.</string>
+    <string name="profile_pick_airport_hint">Every airport Skypass flies to.</string>
+    <string name="profile_search_airports">Search</string>
+    <string name="profile_search_airports_hint">City, country or code</string>
+    <string name="profile_no_airport">No airport matches “%1$s”.</string>
+    <string name="profile_save_failed">That didn\'t save. Check your connection and try again.</string>
+    <string name="profile_save">Save</string>
+
+    <string name="profile_payments_hint">How you can pay when you book a flight.</string>
+    <string name="profile_pay_visa">Visa</string>
+    <string name="profile_pay_mastercard">Mastercard</string>
+    <string name="profile_pay_google">Google Pay</string>
+    <string name="profile_pay_cards">Credit or debit card</string>
+    <string name="profile_pay_google_detail">Cards saved in your Google account</string>
+    <string name="profile_pay_not_stored">Skypass never stores card numbers. Payments are encrypted end to end.</string>
+    <string name="profile_pay_stays">Hotels and rental cars are paid at the property or the desk.</string>
+    <string name="profile_close">Close</string>
+
+    <string name="profile_help_hint">Quick answers about bookings, payments and miles.</string>
+    <string name="profile_help_demo">Skypass is a demo app; bookings are not real.</string>
+    <string name="profile_faq_cancel_q">How do I cancel a stay or a car?</string>
+    <string name="profile_faq_cancel_a">Open My trips, choose the booking and tap Cancel booking. Stays with free cancellation can be cancelled until the day before check-in, cars until 48 hours before pick-up.</string>
+    <string name="profile_faq_pay_q">When do I pay for hotels and cars?</string>
+    <string name="profile_faq_pay_a">At the hotel or the rental desk. Skypass holds the booking and nothing is charged in the app.</string>
+    <string name="profile_faq_pass_q">Where is my boarding pass?</string>
+    <string name="profile_faq_pass_a">In My trips under Flights. Once opened it stays on your phone, so it works offline at the gate.</string>
+    <string name="profile_faq_gate_q">What if my gate changes?</string>
+    <string name="profile_faq_gate_a">Home shows the live gate and status of your next flight, updated the moment the airline changes it.</string>
+    <string name="profile_faq_miles_q">How do I earn miles?</string>
+    <string name="profile_faq_miles_a">Every flight earns its distance in miles. Silver starts at 10,000 miles, Gold at 25,000 and Platinum at 50,000.</string>
+    <string name="profile_faq_travellers_q">Can I book for someone else?</string>
+    <string name="profile_faq_travellers_a">Yes. Add them under Passengers &amp; travel documents and pick them when you book; for stays and cars, change the guest or driver on the details step.</string>
+
+    <string name="profile_passengers_title">Travellers</string>
+    <string name="profile_passengers_subtitle">Passports and contact details for booking</string>
+    <string name="profile_add_traveller">Add a traveller</string>
+    <string name="profile_no_travellers">Save the people you travel with, and booking takes a tap.</string>
+    <string name="profile_primary">You</string>
+    <string name="profile_passport_ending">Passport ending %1$s</string>
+    <string name="profile_no_passport">No passport added</string>
+    <string name="profile_details_missing">Add passport details before booking</string>
+    <string name="profile_passport_valid">Valid until %1$s</string>
+    <string name="profile_passport_soon">Expires %1$s: many countries need 6 months</string>
+    <string name="profile_passport_expired">Expired %1$s</string>
+    <string name="profile_keep">Keep</string>
+    <string name="profile_remove">Remove</string>
+    <string name="profile_remove_named">Remove %1$s</string>
+</resources>

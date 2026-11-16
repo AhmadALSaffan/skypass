@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="passenger_cancel">Cancel</string>
+    <string name="passenger_editor_hint">Exactly as on the passport. The airline needs these before you fly.</string>
+    <string name="passenger_editor_save">Save traveller</string>
+    <string name="passenger_editor_title">Passenger details</string>
+    <string name="passenger_email">Email</string>
+    <string name="passenger_expiry_date">Expiry date</string>
+    <string name="passenger_first_name">First name</string>
+    <string name="passenger_gender">Gender</string>
+    <string name="passenger_gender_female">Female</string>
+    <string name="passenger_gender_male">Male</string>
+    <string name="passenger_gender_unspecified">X</string>
+    <string name="passenger_issue_date">Issue date</string>
+    <string name="passenger_last_name">Last name</string>
+    <string name="passenger_ok">OK</string>
+    <string name="passenger_passport_diplomatic">Diplomatic (D)</string>
+    <string name="passenger_passport_number">Passport number</string>
+    <string name="passenger_passport_official">Official (O)</string>
+    <string name="passenger_passport_ordinary">Ordinary (P)</string>
+    <string name="passenger_passport_service">Service (S)</string>
+    <string name="passenger_passport_type">Passport type</string>
+    <string name="passenger_phone">Phone number</string>
+    <string name="passenger_pick_date">Pick a date</string>
+    <string name="passenger_problem_before_issue">Must be after the issue date</string>
+    <string name="passenger_problem_expires_before_trip">Expires before your trip</string>
+    <string name="passenger_problem_invalid">Check this</string>
+    <string name="passenger_problem_not_issued">Can\'t be in the future</string>
+    <string name="passenger_problem_required">Required</string>
+    <string name="passenger_problem_six_months">Must be valid 6 months after your trip</string>
+</resources>

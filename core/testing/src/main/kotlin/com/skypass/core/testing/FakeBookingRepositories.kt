@@ -80,6 +80,12 @@ class FakePassengerRepository(initial: List<Passenger> = emptyList(), var failSa
         stored += saved
         return Outcome.Success(saved)
     }
+
+    override suspend fun delete(passengerId: String): Outcome<Unit, AppError> {
+        if (failSaves) return Outcome.Failure(AppError.Network)
+        stored.removeAll { it.id == passengerId }
+        return Outcome.Success(Unit)
+    }
 }
 
 class FakePromoRepository(private val codes: Map<String, PromoCode> = mapOf("KIAORA10" to PromoCode("KIAORA10", 10, "10% off your fare"))) : PromoRepository {

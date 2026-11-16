@@ -28,6 +28,9 @@ interface PassengerRepository {
 
     /** Creates (no id) or updates (with id); returns the stored passenger. */
     suspend fun save(passenger: Passenger): Outcome<Passenger, AppError>
+
+    /** Removes a traveller. Past bookings keep their own copy of the names. */
+    suspend fun delete(passengerId: String): Outcome<Unit, AppError>
 }
 
 interface PromoRepository {

@@ -6,7 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.skypass.core.domain.usecase.FilterDestinationsUseCase
 import com.skypass.core.domain.usecase.GetAirportsUseCase
 import com.skypass.core.domain.usecase.GetExploreCatalogUseCase
+import com.skypass.core.domain.usecase.ObserveSavedDestinationsUseCase
 import com.skypass.core.domain.usecase.RequestFlightSearchUseCase
+import com.skypass.core.domain.usecase.SetDestinationSavedUseCase
 import com.skypass.core.domain.usecase.ResolveOriginAirportUseCase
 import com.skypass.core.domain.usecase.SearchAirportsUseCase
 import com.skypass.core.model.Airport
@@ -37,6 +39,8 @@ data class ExploreUiState(
     val destinations: List<Destination> = emptyList(),
     /** While searching: airports that match but aren't in the grid ("Fly to Hamilton"). */
     val airportMatches: List<Airport> = emptyList(),
+    /** Hearted destinations (they show on the Saved tab). */
+    val savedIds: Set<String> = emptySet(),
 ) {
     val isSearching: Boolean get() = query.isNotBlank()
     val isEmpty: Boolean get() = !loading && error == null && destinations.isEmpty() && airportMatches.isEmpty()
@@ -47,6 +51,7 @@ sealed interface ExploreEvent {
     data object ClearQuery : ExploreEvent
     data class CategorySelected(val category: ExploreCategory) : ExploreEvent
     data class DestinationTapped(val destination: Destination) : ExploreEvent
+    data class ToggleSaved(val destination: Destination) : ExploreEvent
     data class AirportTapped(val airport: Airport) : ExploreEvent
     data object DealTapped : ExploreEvent
     data object FlightsTapped : ExploreEvent
@@ -71,6 +76,8 @@ class ExploreViewModel @Inject constructor(
     private val filterDestinations: FilterDestinationsUseCase,
     private val searchAirports: SearchAirportsUseCase,
     private val requestFlightSearch: RequestFlightSearchUseCase,
+    observeSaved: ObserveSavedDestinationsUseCase,
+    private val setSaved: SetDestinationSavedUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -89,6 +96,7 @@ class ExploreViewModel @Inject constructor(
 
     init {
         load()
+        viewModelScope.launch { observeSaved().collect { ids -> _uiState.update { it.copy(savedIds = ids) } } }
     }
 
     fun onEvent(event: ExploreEvent) {
@@ -99,6 +107,9 @@ class ExploreViewModel @Inject constructor(
                 refilter()
             }
             ExploreEvent.ClearQuery -> onEvent(ExploreEvent.QueryChanged(""))
+            is ExploreEvent.ToggleSaved -> viewModelScope.launch {
+                setSaved(event.destination.id, event.destination.id !in _uiState.value.savedIds)
+            }
             is ExploreEvent.CategorySelected -> {
                 savedStateHandle[KEY_CATEGORY] = event.category.name
                 _uiState.update { it.copy(category = event.category) }

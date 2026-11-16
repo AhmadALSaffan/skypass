@@ -200,6 +200,11 @@ internal class SupabasePassengerRepository @Inject constructor(
             }.decodeSingle<PassengerDto>()
         }.toModel()
     }
+
+    override suspend fun delete(passengerId: String): Outcome<Unit, AppError> = supabase.safeCall {
+        supabase.from("passengers").delete { filter { eq("id", passengerId) } }
+        Unit
+    }
 }
 
 // ---------------------------------------------------------------------------------------------

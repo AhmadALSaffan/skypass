@@ -41,6 +41,12 @@ object SkypassIcons {
     val Plane = fill("plane", "M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z")
     val Star = fill("star", "m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z")
     val Wifi = stroke("wifi", 2f, "M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01")
+    val Passport = stroke("passport", 1.9f, "M5 3h14v18H5zM9 7h6M12 11a2 2 0 1 0 0 4 2 2 0 0 0 0-4z")
+    val Card = stroke("card", 1.9f, "M3 5h18v14H3zM3 10h18")
+    val Clock = stroke("clock", 1.9f, "M12 7v5l3 2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z")
+    val Help = stroke("help", 1.9f, "M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z")
+    val Trash = stroke("trash", 1.9f, "M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6")
+    val Plus = stroke("plus", 2.2f, "M12 5v14M5 12h14")
     val CloudOff = stroke("cloud_off", 2f, "M22.61 16.95A5 5 0 0 0 18 10h-1.26a8 8 0 0 0-7.05-6M5 5a8 8 0 0 0 4 15h9a5 5 0 0 0 1.7-.3M1 1l22 22")
 }
 

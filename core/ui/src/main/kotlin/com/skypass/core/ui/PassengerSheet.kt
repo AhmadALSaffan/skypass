@@ -1,4 +1,4 @@
-package com.skypass.feature.booking
+package com.skypass.core.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -67,13 +67,18 @@ private val DateLabel = DateTimeFormatter.ofPattern("d MMM yyyy")
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-internal fun PassengerSheet(editor: PassengerEditor, onEvent: (BookingEvent) -> Unit) {
-    fun update(e: PassengerEditor) = onEvent(BookingEvent.UpdateEditor(e))
+fun PassengerSheet(
+    editor: PassengerEditor,
+    onChange: (PassengerEditor) -> Unit,
+    onSave: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    fun update(e: PassengerEditor) = onChange(e)
     val problems = editor.problems
     var picking by remember { mutableStateOf<PassengerField?>(null) }
 
     ModalBottomSheet(
-        onDismissRequest = { onEvent(BookingEvent.DismissEditor) },
+        onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = SkypassTheme.colors.bg,
     ) {
@@ -85,14 +90,14 @@ internal fun PassengerSheet(editor: PassengerEditor, onEvent: (BookingEvent) -> 
                 .imePadding(),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text(stringResource(R.string.booking_editor_title), style = SkypassTheme.typography.headline, color = SkypassTheme.colors.ink)
-            Text(stringResource(R.string.booking_editor_hint), style = SkypassTheme.typography.bodySm, color = SkypassTheme.colors.text2)
+            Text(stringResource(R.string.passenger_editor_title), style = SkypassTheme.typography.headline, color = SkypassTheme.colors.ink)
+            Text(stringResource(R.string.passenger_editor_hint), style = SkypassTheme.typography.bodySm, color = SkypassTheme.colors.text2)
 
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 SkypassTextField(
                     value = editor.firstName,
                     onValueChange = { update(editor.copy(firstName = it)) },
-                    label = stringResource(R.string.booking_first_name),
+                    label = stringResource(R.string.passenger_first_name),
                     error = problems[PassengerField.FirstName]?.let { problemText(it) },
                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Next),
                     modifier = Modifier.weight(1f),
@@ -100,26 +105,26 @@ internal fun PassengerSheet(editor: PassengerEditor, onEvent: (BookingEvent) -> 
                 SkypassTextField(
                     value = editor.lastName,
                     onValueChange = { update(editor.copy(lastName = it)) },
-                    label = stringResource(R.string.booking_last_name),
+                    label = stringResource(R.string.passenger_last_name),
                     error = problems[PassengerField.LastName]?.let { problemText(it) },
                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Next),
                     modifier = Modifier.weight(1f),
                 )
             }
 
-            Labeled(stringResource(R.string.booking_gender), problems[PassengerField.Gender]) {
+            Labeled(stringResource(R.string.passenger_gender), problems[PassengerField.Gender]) {
                 SegmentedTabs(
                     options = listOf(
-                        stringResource(R.string.booking_gender_female),
-                        stringResource(R.string.booking_gender_male),
-                        stringResource(R.string.booking_gender_unspecified),
+                        stringResource(R.string.passenger_gender_female),
+                        stringResource(R.string.passenger_gender_male),
+                        stringResource(R.string.passenger_gender_unspecified),
                     ),
                     selectedIndex = editor.gender?.ordinal ?: -1,
                     onSelect = { update(editor.copy(gender = Gender.entries[it])) },
                 )
             }
 
-            Labeled(stringResource(R.string.booking_passport_type), problems[PassengerField.PassportType]) {
+            Labeled(stringResource(R.string.passenger_passport_type), problems[PassengerField.PassportType]) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     PassportType.entries.forEach { type ->
                         FilterChip(passportTypeLabel(type), editor.passportType == type, onClick = { update(editor.copy(passportType = type)) })
@@ -130,7 +135,7 @@ internal fun PassengerSheet(editor: PassengerEditor, onEvent: (BookingEvent) -> 
             SkypassTextField(
                 value = editor.passportNumber,
                 onValueChange = { v -> update(editor.copy(passportNumber = v.uppercase().filter(Char::isLetterOrDigit).take(9))) },
-                label = stringResource(R.string.booking_passport_number),
+                label = stringResource(R.string.passenger_passport_number),
                 placeholder = "LA1234471",
                 error = problems[PassengerField.PassportNumber]?.let { problemText(it) },
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters, keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Next),
@@ -138,14 +143,14 @@ internal fun PassengerSheet(editor: PassengerEditor, onEvent: (BookingEvent) -> 
 
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 DateField(
-                    label = stringResource(R.string.booking_issue_date),
+                    label = stringResource(R.string.passenger_issue_date),
                     date = editor.issueDate,
                     problem = problems[PassengerField.IssueDate],
                     onClick = { picking = PassengerField.IssueDate },
                     modifier = Modifier.weight(1f),
                 )
                 DateField(
-                    label = stringResource(R.string.booking_expiry_date),
+                    label = stringResource(R.string.passenger_expiry_date),
                     date = editor.expiryDate,
                     problem = problems[PassengerField.ExpiryDate],
                     onClick = { picking = PassengerField.ExpiryDate },
@@ -156,7 +161,7 @@ internal fun PassengerSheet(editor: PassengerEditor, onEvent: (BookingEvent) -> 
             SkypassTextField(
                 value = editor.phone,
                 onValueChange = { v -> update(editor.copy(phone = v.filter { it.isDigit() || it in "+ ()-" }.take(20))) },
-                label = stringResource(R.string.booking_phone),
+                label = stringResource(R.string.passenger_phone),
                 placeholder = "+64 21 555 0199",
                 error = problems[PassengerField.Phone]?.let { problemText(it) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next),
@@ -164,15 +169,15 @@ internal fun PassengerSheet(editor: PassengerEditor, onEvent: (BookingEvent) -> 
             SkypassTextField(
                 value = editor.email,
                 onValueChange = { update(editor.copy(email = it.trim())) },
-                label = stringResource(R.string.booking_email),
+                label = stringResource(R.string.passenger_email),
                 placeholder = "name@example.com",
                 error = problems[PassengerField.Email]?.let { problemText(it) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
             )
 
             PrimaryButton(
-                text = stringResource(R.string.booking_editor_save),
-                onClick = { onEvent(BookingEvent.SavePassenger) },
+                text = stringResource(R.string.passenger_editor_save),
+                onClick = onSave,
                 loading = editor.saving,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -220,7 +225,7 @@ private fun DateField(label: String, date: LocalDate?, problem: FieldProblem?, o
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                date?.format(DateLabel) ?: stringResource(R.string.booking_pick_date),
+                date?.format(DateLabel) ?: stringResource(R.string.passenger_pick_date),
                 style = SkypassTheme.typography.bodyStrong,
                 color = if (date == null) colors.text2 else colors.ink,
                 modifier = Modifier.weight(1f),
@@ -262,9 +267,9 @@ private fun PassportDatePicker(
     DatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            SkypassTextButton(stringResource(R.string.booking_ok), { state.selectedDateMillis?.let { onPicked(it.date()) } ?: onDismiss() }, color = colors.brand)
+            SkypassTextButton(stringResource(R.string.passenger_ok), { state.selectedDateMillis?.let { onPicked(it.date()) } ?: onDismiss() }, color = colors.brand)
         },
-        dismissButton = { SkypassTextButton(stringResource(R.string.booking_cancel), onDismiss) },
+        dismissButton = { SkypassTextButton(stringResource(R.string.passenger_cancel), onDismiss) },
         colors = pickerColors,
         shape = Shapes.hero,
     ) {
@@ -276,22 +281,22 @@ private fun PassportDatePicker(
 @Composable
 private fun passportTypeLabel(type: PassportType) = stringResource(
     when (type) {
-        PassportType.Ordinary -> R.string.booking_passport_ordinary
-        PassportType.Diplomatic -> R.string.booking_passport_diplomatic
-        PassportType.Service -> R.string.booking_passport_service
-        PassportType.Official -> R.string.booking_passport_official
+        PassportType.Ordinary -> R.string.passenger_passport_ordinary
+        PassportType.Diplomatic -> R.string.passenger_passport_diplomatic
+        PassportType.Service -> R.string.passenger_passport_service
+        PassportType.Official -> R.string.passenger_passport_official
     },
 )
 
 @Composable
-internal fun problemText(problem: FieldProblem) = stringResource(
+fun problemText(problem: FieldProblem) = stringResource(
     when (problem) {
-        FieldProblem.Required -> R.string.booking_problem_required
-        FieldProblem.Invalid -> R.string.booking_problem_invalid
-        FieldProblem.NotYetIssued -> R.string.booking_problem_not_issued
-        FieldProblem.BeforeIssue -> R.string.booking_problem_before_issue
-        FieldProblem.ExpiresBeforeTrip -> R.string.booking_problem_expires_before_trip
-        FieldProblem.ExpiresWithinSixMonths -> R.string.booking_problem_six_months
+        FieldProblem.Required -> R.string.passenger_problem_required
+        FieldProblem.Invalid -> R.string.passenger_problem_invalid
+        FieldProblem.NotYetIssued -> R.string.passenger_problem_not_issued
+        FieldProblem.BeforeIssue -> R.string.passenger_problem_before_issue
+        FieldProblem.ExpiresBeforeTrip -> R.string.passenger_problem_expires_before_trip
+        FieldProblem.ExpiresWithinSixMonths -> R.string.passenger_problem_six_months
     },
 )
 

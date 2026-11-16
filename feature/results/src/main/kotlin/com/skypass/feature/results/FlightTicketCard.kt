@@ -46,6 +46,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.skypass.core.designsystem.component.AirlineLogo
+import com.skypass.core.designsystem.theme.sharedContainer
+import com.skypass.core.designsystem.theme.sharedItem
 import com.skypass.core.designsystem.component.AnzWordmark
 import com.skypass.core.designsystem.component.Barcode
 import com.skypass.core.designsystem.component.DashedRoute
@@ -111,6 +113,8 @@ internal fun FlightTicketCard(
         modifier
             .fillMaxWidth()
             .pressScale(interaction, 0.985f)
+            // Selecting the flight morphs this ticket into the booking summary.
+            .sharedContainer("flight-${flight.instanceId}")
             .softShadow(SoftShadow.Card, Shapes.ticket)
             .clip(Shapes.ticket)
             .background(colors.surface)
@@ -119,7 +123,13 @@ internal fun FlightTicketCard(
     ) {
         // Airline row
         Row(Modifier.padding(start = 16.dp, end = 8.dp, top = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-            AirlineLogo(flight.airlineCode, Color(flight.airlineColor), size = 40.dp, logoUrl = flight.airlineLogoUrl)
+            AirlineLogo(
+                flight.airlineCode,
+                Color(flight.airlineColor),
+                size = 40.dp,
+                logoUrl = flight.airlineLogoUrl,
+                modifier = Modifier.sharedItem("logo-${flight.instanceId}"),
+            )
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
                 if (flight.airlineCode == "NZ") {

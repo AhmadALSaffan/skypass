@@ -3,7 +3,9 @@ package com.skypass.feature.results.navigation
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.lifecycle.SavedStateHandle
+import com.skypass.core.designsystem.theme.LocalNavAnimatedScope
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.skypass.core.designsystem.theme.Motion
@@ -69,6 +71,8 @@ fun NavGraphBuilder.resultsScreen(
                 fadeIn(tween(420, delayMillis = 120))
         },
     ) {
-        ResultsRoute(onBack = onBack, onPickReturn = onPickReturn, onFlightSelected = onFlightSelected)
+        CompositionLocalProvider(LocalNavAnimatedScope provides this) {
+            ResultsRoute(onBack = onBack, onPickReturn = onPickReturn, onFlightSelected = onFlightSelected)
+        }
     }
 }

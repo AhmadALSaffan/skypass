@@ -63,6 +63,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.skypass.core.designsystem.component.AirlineLogo
+import com.skypass.core.designsystem.theme.sharedContainer
+import com.skypass.core.designsystem.theme.sharedItem
 import com.skypass.core.designsystem.component.Avatar
 import com.skypass.core.designsystem.component.CounterStepper
 import com.skypass.core.designsystem.component.Eyebrow
@@ -143,7 +145,7 @@ internal fun BookingScreen(uiState: BookingUiState, onEvent: (BookingEvent) -> U
             modifier = Modifier.weight(1f),
         ) { slot ->
             when (slot) {
-                0 -> Loading()
+                0 -> Loading(uiState.legs.firstOrNull()?.instanceId)
                 1 -> ErrorState(onRetry = { onEvent(BookingEvent.Retry) })
                 else -> Content(uiState, onEvent)
             }
@@ -260,8 +262,10 @@ private fun Content(uiState: BookingUiState, onEvent: (BookingEvent) -> Unit) {
 @Composable
 private fun FlightSummary(uiState: BookingUiState, modifier: Modifier = Modifier) {
     val colors = SkypassTheme.colors
+    val first = uiState.legs.firstOrNull()?.instanceId
     Column(
         modifier
+            .then(if (first != null) Modifier.sharedContainer("flight-$first") else Modifier)
             .softShadow(SoftShadow.Low, Shapes.card)
             .background(colors.surface, Shapes.card),
     ) {
@@ -280,7 +284,13 @@ private fun FlightSummary(uiState: BookingUiState, modifier: Modifier = Modifier
 private fun LegRow(f: FlightOffer) {
     val colors = SkypassTheme.colors
     Row(verticalAlignment = Alignment.CenterVertically) {
-        AirlineLogo(f.airlineCode, Color(f.airlineColor), size = 40.dp, logoUrl = f.airlineLogoUrl)
+        AirlineLogo(
+            f.airlineCode,
+            Color(f.airlineColor),
+            size = 40.dp,
+            logoUrl = f.airlineLogoUrl,
+            modifier = Modifier.sharedItem("logo-${f.instanceId}"),
+        )
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
             Text("${f.originCode} → ${f.destinationCode}", style = SkypassTheme.typography.label, color = colors.ink)
@@ -489,11 +499,13 @@ private fun Footer(uiState: BookingUiState, onContinue: () -> Unit) {
 }
 
 @Composable
-private fun Loading() {
+private fun Loading(firstInstanceId: String?) {
     val alpha by rememberInfiniteTransition(label = "skeleton").animateFloat(0.45f, 0.9f, infiniteRepeatable(tween(900), RepeatMode.Reverse), label = "a")
     Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        listOf(76, 64, 300, 64).forEach { h ->
-            Box(Modifier.fillMaxWidth().height(h.dp).graphicsLayer { this.alpha = alpha }.background(SkypassTheme.colors.surface, Shapes.card))
+        listOf(76, 64, 300, 64).forEachIndexed { i, h ->
+            // The first block is where the flight summary lands: the chosen ticket morphs into it.
+            val shared = if (i == 0 && firstInstanceId != null) Modifier.sharedContainer("flight-$firstInstanceId") else Modifier
+            Box(Modifier.fillMaxWidth().height(h.dp).then(shared).graphicsLayer { this.alpha = alpha }.background(SkypassTheme.colors.surface, Shapes.card))
         }
     }
 }

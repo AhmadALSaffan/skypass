@@ -30,9 +30,21 @@ internal data class UserSettingsDto(
     val currency: String = "USD",
 ) {
     fun toModel() = AccountSettings(NotificationSettings(push, gateAlerts, priceAlerts), DisplayCurrency.fromCode(currency))
+}
 
+/**
+ * What an update writes. No default values on purpose: the serializer leaves out fields that equal
+ * their default, so a DTO with defaults would silently skip "USD" or "push on".
+ */
+@Serializable
+internal data class UserSettingsUpdateDto(
+    @SerialName("push_notifications") val push: Boolean,
+    @SerialName("gate_alerts") val gateAlerts: Boolean,
+    @SerialName("price_alerts") val priceAlerts: Boolean,
+    val currency: String,
+) {
     companion object {
-        fun from(s: AccountSettings) = UserSettingsDto(s.notifications.push, s.notifications.gateAlerts, s.notifications.priceAlerts, s.currency.code)
+        fun from(s: AccountSettings) = UserSettingsUpdateDto(s.notifications.push, s.notifications.gateAlerts, s.notifications.priceAlerts, s.currency.code)
     }
 }
 
@@ -80,7 +92,7 @@ internal class SupabaseAccountSettingsRepository @Inject constructor(
             return Outcome.Failure(AppError.Unauthorized)
         }
         val result = supabase.safeCall {
-            supabase.from("user_settings").update(UserSettingsDto.from(settings)) { filter { eq("user_id", userId) } }
+            supabase.from("user_settings").update(UserSettingsUpdateDto.from(settings)) { filter { eq("user_id", userId) } }
             Unit
         }
         // Refused or offline: put the switch back where the server has it.

@@ -125,6 +125,15 @@ Your tier and travel stats, counted on the server from your own bookings, and ev
 | **Light** | <img src="docs/screenshots/light/profile.jpg" width="170"> | <img src="docs/screenshots/light/profile-info.jpg" width="170"> | <img src="docs/screenshots/light/saved.jpg" width="170"> | <img src="docs/screenshots/light/saved-places.jpg" width="170"> |
 | **Dark** | <img src="docs/screenshots/dark/profile.jpg" width="170"> | <img src="docs/screenshots/dark/profile-info.jpg" width="170"> | <img src="docs/screenshots/dark/saved.jpg" width="170"> | <img src="docs/screenshots/dark/saved-places.jpg" width="170"> |
 
+### Payment methods and Settings
+
+Save Visa, Mastercard, American Express and Discover cards (only the last four digits are kept), pay with Google Pay, and tune notifications, currency, appearance and the biometric lock.
+
+| | Payment methods | Add a card | Settings |
+|:---:|:---:|:---:|:---:|
+| **Light** | <img src="docs/screenshots/light/payment-methods.jpg" width="170"> | <img src="docs/screenshots/light/add-card.jpg" width="170"> | <img src="docs/screenshots/light/settings.jpg" width="170"> |
+| **Dark** | <img src="docs/screenshots/dark/payment-methods.jpg" width="170"> | <img src="docs/screenshots/dark/add-card.jpg" width="170"> | <img src="docs/screenshots/dark/settings.jpg" width="170"> |
+
 ---
 
 ## Features
@@ -197,6 +206,9 @@ Your tier and travel stats, counted on the server from your own bookings, and ev
   - Currency (USD, EUR, GBP, NZ$) applied to every price in the app; checkout says flights are charged in US dollars.
   - Dark mode (System, On, Off), home airport, connected accounts, sign out (guests are warned first).
   - Biometric lock with BiometricPrompt: locks the app on start and after 30 seconds away, and confirms payments.
+- ✨ **Polish**:
+  - Selecting a flight morphs its ticket into the booking summary (Compose shared elements across navigation), and the airline logo flies to its new place.
+  - Predictive back on Android 14+; every screen holds up at 130 % font size; switches are whole-row touch targets read as one control by TalkBack.
 - ⚡ **Fast start**: the splash screen only waits for the session saved on the phone, never the network; the Supabase client is built off the main thread while the activity starts. Data calls wait for a stale token's refresh on their own.
 - 🌗 **Light and dark**: every screen, from the same design tokens.
 - ♿ **Every state designed**: loading skeletons, empty, offline and error states with retry.
@@ -205,11 +217,27 @@ Your tier and travel stats, counted on the server from your own bookings, and ev
 
 ## Architecture
 
-```text
-:app ──► :feature:*  ──► :core:domain ◄── :core:data ──► :core:network (supabase-kt)
-              │               ▲                 │
-              ▼               │                 └──► :core:datastore
-      :core:designsystem   :core:model
+```mermaid
+flowchart LR
+    app[":app<br/>MainActivity · NavHost · lock"] --> features
+    subgraph features[":feature:*"]
+        direction TB
+        f1["onboarding · auth · home · results"]
+        f2["booking · payment · confirmation"]
+        f3["explore · hotels · cars · trips"]
+        f4["profile · saved · settings"]
+    end
+    features --> ui[":core:ui<br/>shared forms"]
+    features --> ds[":core:designsystem"]
+    features --> domain[":core:domain<br/>use cases · repository interfaces"]
+    ui --> ds
+    ui --> domain
+    data[":core:data<br/>Supabase repositories"] --> domain
+    data --> network[":core:network<br/>supabase-kt"]
+    data --> datastore[":core:datastore"]
+    domain --> model[":core:model"]
+    ds --> model
+    app --> data
 ```
 
 - **MVVM, one direction.** Each screen is a `XRoute` (collects state and one-off effects, gets its ViewModel from Hilt), then a stateless `XScreen(uiState, onEvent)`, then a `XViewModel` holding a `StateFlow` of UI state, a sealed `Event` and a `Channel` of `Effect`s.

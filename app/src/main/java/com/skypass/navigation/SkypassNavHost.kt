@@ -1,6 +1,10 @@
 package com.skypass.navigation
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.runtime.CompositionLocalProvider
+import com.skypass.core.designsystem.theme.LocalSharedTransitionScope
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -85,6 +89,7 @@ private enum class Tab(val route: Any, val routeClass: KClass<*>, val item: Bott
 
 private fun NavDestination?.tab(): Tab? = Tab.entries.firstOrNull { tab -> this?.hierarchy?.any { it.hasRoute(tab.routeClass) } == true }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SkypassNavHost(startScreen: StartScreen) {
     val navController = rememberNavController()
@@ -98,112 +103,117 @@ fun SkypassNavHost(startScreen: StartScreen) {
     val navBarInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     Box(Modifier.fillMaxSize()) {
-        NavHost(
-            navController = navController,
-            startDestination = start,
-            modifier = Modifier.fillMaxSize().padding(bottom = if (currentTab != null) BottomBarHeight + navBarInset else 0.dp),
-            enterTransition = {
-                if (initialState.destination.tab() != null && targetState.destination.tab() != null) {
-                    fadeIn(tween(Motion.SCREEN))
-                } else {
-                    slideIntoContainer(SlideDirection.Start, tween(Motion.SCREEN, easing = Motion.EmphasizedDecelerate)) { it / 6 } +
-                        fadeIn(tween(Motion.SCREEN, easing = Motion.EmphasizedDecelerate))
-                }
-            },
-            exitTransition = {
-                if (targetState.destination.hasRoute(ResultsDestination::class)) {
-                    // Home slides away as the search plane pulls the results in.
-                    slideOutHorizontally(tween(520, easing = Motion.EmphasizedAccelerate)) { -it / 5 } + fadeOut(tween(360))
-                } else {
-                    fadeOut(tween(Motion.EXIT))
-                }
-            },
-            popEnterTransition = { fadeIn(tween(Motion.SCREEN)) },
-            popExitTransition = {
-                slideOutOfContainer(SlideDirection.End, tween(Motion.SCREEN, easing = Motion.EmphasizedAccelerate)) { it / 6 } +
-                    fadeOut(tween(Motion.EXIT))
-            },
-        ) {
-            onboardingScreen(onFinished = { navController.replaceAll(SignInDestination) })
-            signInScreen(onSignedIn = { navController.replaceAll(HomeDestination) })
-
-            homeScreen(
-                onSearch = { navController.navigate(it.toResultsDestination()) },
-                onSeeAllTrips = { navController.navigate(TripsDestination()) },
-                onSeeAllDestinations = { navController.switchTab(Tab.Explore) },
-            )
-            exploreScreen(
-                onOpenFlights = { navController.switchTab(Tab.Home) },
-                onOpenHotels = { navController.navigate(HotelsDestination()) },
-                onOpenCars = { navController.navigate(CarsDestination) },
-            )
-            // After booking, My trips replaces the booking screen, so Back goes where the traveller came from.
-            hotelsScreen(
-                onBack = { navController.popBackStack() },
-                onOpenMyTrips = {
-                    navController.navigate(TripsDestination("Stays")) { popUpTo<HotelsDestination> { inclusive = true } }
-                },
-            )
-            carsScreen(
-                onBack = { navController.popBackStack() },
-                onOpenMyTrips = {
-                    navController.navigate(TripsDestination("Cars")) { popUpTo<CarsDestination> { inclusive = true } }
-                },
-            )
-            tripsScreen(
-                onBack = { navController.popBackStack() },
-                onBoardingPass = { navController.navigate(ConfirmationDestination(it)) },
-                onFindFlights = { navController.switchTab(Tab.Home) },
-                onFindStays = { navController.navigate(HotelsDestination()) },
-                onFindCars = { navController.navigate(CarsDestination) },
-            )
-            savedScreen(
-                onBookFlight = { instanceId ->
-                    navController.navigate(BookingDestination(instanceId, null, 1, Cabin.Economy.apiValue))
-                },
-                onOpenHotels = { city -> navController.navigate(HotelsDestination(city)) },
-                onSearchFlights = { navController.switchTab(Tab.Home) },
-                onOpenExplore = { navController.switchTab(Tab.Explore) },
-            )
-            profileScreen(
-                onSettings = { navController.navigate(SettingsDestination) },
-                onPassengers = { navController.navigate(PassengersDestination) },
-                onPaymentMethods = { navController.navigate(PaymentMethodsDestination) },
-                onSaved = { navController.switchTab(Tab.Saved) },
-                onTrips = { navController.navigate(TripsDestination()) },
-            )
-            passengersScreen(onBack = { navController.popBackStack() })
-            paymentMethodsScreen(onBack = { navController.popBackStack() })
-            settingsScreen(
-                onBack = { navController.popBackStack() },
-                onSignedOut = { navController.replaceAll(SignInDestination) },
-            )
-            resultsScreen(
-                onBack = { navController.popBackStack() },
-                onPickReturn = { navController.navigate(it) },
-                onFlightSelected = { selection ->
-                    navController.navigate(
-                        BookingDestination(selection.outboundInstanceId, selection.returnInstanceId, selection.adults, selection.cabin.apiValue),
-                    )
-                },
-            )
-            bookingScreen(
-                onBack = { navController.popBackStack() },
-                onContinue = { r -> navController.navigate(PaymentDestination.from(r.legs, r.passengerIds, r.cabin, r.bags)) },
-            )
-            paymentScreen(
-                onBack = { navController.popBackStack() },
-                onPaid = { ids ->
-                    // Paid: the booking flow is done, so Back from the boarding pass goes home.
-                    navController.navigate(ConfirmationDestination(ids.joinToString(","))) {
-                        popUpTo(HomeDestination)
+        // One shared layout for the whole graph: a ticket can morph into the next screen.
+        SharedTransitionLayout {
+            CompositionLocalProvider(LocalSharedTransitionScope provides this) {
+            NavHost(
+                navController = navController,
+                startDestination = start,
+                modifier = Modifier.fillMaxSize().padding(bottom = if (currentTab != null) BottomBarHeight + navBarInset else 0.dp),
+                enterTransition = {
+                    if (initialState.destination.tab() != null && targetState.destination.tab() != null) {
+                        fadeIn(tween(Motion.SCREEN))
+                    } else {
+                        slideIntoContainer(SlideDirection.Start, tween(Motion.SCREEN, easing = Motion.EmphasizedDecelerate)) { it / 6 } +
+                            fadeIn(tween(Motion.SCREEN, easing = Motion.EmphasizedDecelerate))
                     }
                 },
-            )
-            // A fresh Home so the new trip shows up straight away.
-            confirmationScreen(onHome = { navController.replaceAll(HomeDestination) })
-        }
+                exitTransition = {
+                    if (targetState.destination.hasRoute(ResultsDestination::class)) {
+                        // Home slides away as the search plane pulls the results in.
+                        slideOutHorizontally(tween(520, easing = Motion.EmphasizedAccelerate)) { -it / 5 } + fadeOut(tween(360))
+                    } else {
+                        fadeOut(tween(Motion.EXIT))
+                    }
+                },
+                popEnterTransition = { fadeIn(tween(Motion.SCREEN)) },
+                popExitTransition = {
+                    slideOutOfContainer(SlideDirection.End, tween(Motion.SCREEN, easing = Motion.EmphasizedAccelerate)) { it / 6 } +
+                        fadeOut(tween(Motion.EXIT))
+                },
+            ) {
+                onboardingScreen(onFinished = { navController.replaceAll(SignInDestination) })
+                signInScreen(onSignedIn = { navController.replaceAll(HomeDestination) })
 
+                homeScreen(
+                    onSearch = { navController.navigate(it.toResultsDestination()) },
+                    onSeeAllTrips = { navController.navigate(TripsDestination()) },
+                    onSeeAllDestinations = { navController.switchTab(Tab.Explore) },
+                )
+                exploreScreen(
+                    onOpenFlights = { navController.switchTab(Tab.Home) },
+                    onOpenHotels = { navController.navigate(HotelsDestination()) },
+                    onOpenCars = { navController.navigate(CarsDestination) },
+                )
+                // After booking, My trips replaces the booking screen, so Back goes where the traveller came from.
+                hotelsScreen(
+                    onBack = { navController.popBackStack() },
+                    onOpenMyTrips = {
+                        navController.navigate(TripsDestination("Stays")) { popUpTo<HotelsDestination> { inclusive = true } }
+                    },
+                )
+                carsScreen(
+                    onBack = { navController.popBackStack() },
+                    onOpenMyTrips = {
+                        navController.navigate(TripsDestination("Cars")) { popUpTo<CarsDestination> { inclusive = true } }
+                    },
+                )
+                tripsScreen(
+                    onBack = { navController.popBackStack() },
+                    onBoardingPass = { navController.navigate(ConfirmationDestination(it)) },
+                    onFindFlights = { navController.switchTab(Tab.Home) },
+                    onFindStays = { navController.navigate(HotelsDestination()) },
+                    onFindCars = { navController.navigate(CarsDestination) },
+                )
+                savedScreen(
+                    onBookFlight = { instanceId ->
+                        navController.navigate(BookingDestination(instanceId, null, 1, Cabin.Economy.apiValue))
+                    },
+                    onOpenHotels = { city -> navController.navigate(HotelsDestination(city)) },
+                    onSearchFlights = { navController.switchTab(Tab.Home) },
+                    onOpenExplore = { navController.switchTab(Tab.Explore) },
+                )
+                profileScreen(
+                    onSettings = { navController.navigate(SettingsDestination) },
+                    onPassengers = { navController.navigate(PassengersDestination) },
+                    onPaymentMethods = { navController.navigate(PaymentMethodsDestination) },
+                    onSaved = { navController.switchTab(Tab.Saved) },
+                    onTrips = { navController.navigate(TripsDestination()) },
+                )
+                passengersScreen(onBack = { navController.popBackStack() })
+                paymentMethodsScreen(onBack = { navController.popBackStack() })
+                settingsScreen(
+                    onBack = { navController.popBackStack() },
+                    onSignedOut = { navController.replaceAll(SignInDestination) },
+                )
+                resultsScreen(
+                    onBack = { navController.popBackStack() },
+                    onPickReturn = { navController.navigate(it) },
+                    onFlightSelected = { selection ->
+                        navController.navigate(
+                            BookingDestination(selection.outboundInstanceId, selection.returnInstanceId, selection.adults, selection.cabin.apiValue),
+                        )
+                    },
+                )
+                bookingScreen(
+                    onBack = { navController.popBackStack() },
+                    onContinue = { r -> navController.navigate(PaymentDestination.from(r.legs, r.passengerIds, r.cabin, r.bags)) },
+                )
+                paymentScreen(
+                    onBack = { navController.popBackStack() },
+                    onPaid = { ids ->
+                        // Paid: the booking flow is done, so Back from the boarding pass goes home.
+                        navController.navigate(ConfirmationDestination(ids.joinToString(","))) {
+                            popUpTo(HomeDestination)
+                        }
+                    },
+                )
+                // A fresh Home so the new trip shows up straight away.
+                confirmationScreen(onHome = { navController.replaceAll(HomeDestination) })
+            }
+
+            }
+        }
         // Tab screens scroll edge to edge; keep the clock readable over them.
         if (currentTab != null) {
             Box(

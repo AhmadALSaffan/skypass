@@ -1,6 +1,8 @@
 package com.skypass.feature.booking.navigation
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.lifecycle.SavedStateHandle
+import com.skypass.core.designsystem.theme.LocalNavAnimatedScope
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.skypass.core.model.Cabin
@@ -38,6 +40,8 @@ fun NavGraphBuilder.bookingScreen(
     onContinue: (PaymentRequest) -> Unit,
 ) {
     composable<BookingDestination> {
-        BookingRoute(onBack = onBack, onContinue = onContinue)
+        CompositionLocalProvider(LocalNavAnimatedScope provides this) {
+            BookingRoute(onBack = onBack, onContinue = onContinue)
+        }
     }
 }

@@ -240,10 +240,7 @@ fun AddCardSheet(
     }
 }
 
-private val CardNavy = Color(0xFF1C2550)
-private val CardTeal = Color(0xFF0F5B56)
-
-/** A small navy card that fills in as the traveller types. */
+/** The Skypass card, filling in as the traveller types. */
 @Composable
 private fun LiveCard(draft: CardDraft) {
     val brand = draft.brand
@@ -261,36 +258,10 @@ private fun LiveCard(draft: CardDraft) {
             i += g
         }
     }
-    val expiry = draft.expiry.padEnd(4, '•').let { it.take(2) + "/" + it.drop(2) }
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .height(150.dp)
-            .clip(Shapes.hero)
-            .background(CardNavy)
-            .drawBehind {
-                drawCircle(CardTeal.copy(alpha = 0.85f), radius = 90.dp.toPx(), center = Offset(size.width + 10.dp.toPx(), 25.dp.toPx()))
-                drawCircle(Color.White.copy(alpha = 0.18f), radius = 70.dp.toPx(), center = Offset(30.dp.toPx(), size.height + 25.dp.toPx()), style = Stroke(1.5.dp.toPx()))
-            }
-            .padding(horizontal = 20.dp, vertical = 16.dp),
-    ) {
-        Box(Modifier.align(Alignment.TopEnd)) {
-            AnimatedContent(brand, transitionSpec = { (fadeIn(tween(200)) + scaleIn(initialScale = 0.85f)) togetherWith fadeOut(tween(120)) }, label = "liveBrand") { b ->
-                if (b != null) PaymentLogo(b.paymentType, width = 52.dp, height = 34.dp) else Spacer(Modifier.height(34.dp))
-            }
-        }
-        Column(Modifier.align(Alignment.BottomStart).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(shownNumber, style = TextStyle(fontFamily = DmMono, fontSize = 16.sp, letterSpacing = 0.04.em), color = Color.White, maxLines = 1)
-            Row {
-                Text(
-                    draft.holder.ifBlank { stringResource(R.string.card_holder_placeholder) }.uppercase(),
-                    style = SkypassTheme.typography.captionStrong.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
-                    maxLines = 1,
-                    modifier = Modifier.weight(1f),
-                )
-                Text(expiry, style = TextStyle(fontFamily = DmMono, fontSize = 13.sp), color = Color.White)
-            }
-        }
-    }
+    SkypassCardFace(
+        network = brand?.paymentType,
+        number = shownNumber,
+        holder = draft.holder.ifBlank { stringResource(R.string.card_holder_placeholder) },
+        expiry = draft.expiry.padEnd(4, '•').let { it.take(2) + "/" + it.drop(2) },
+    )
 }

@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.skypass.core.ui.AddCardSheet
+import com.skypass.core.ui.SkypassCardFace
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 import com.skypass.core.model.DisplayCurrency
@@ -254,50 +255,16 @@ private fun CardPreview(method: PaymentMethod, modifier: Modifier = Modifier) {
         turn.snapTo(-90f)
         turn.animateTo(0f, tween(260, easing = Motion.EmphasizedDecelerate))
     }
-    Box(
-        modifier
-            .fillMaxWidth()
-            .height(192.dp)
-            .graphicsLayer {
-                rotationY = turn.value
-                cameraDistance = 12 * density
-            }
-            .softShadow(SoftShadow.Float, Shapes.hero)
-            .clip(Shapes.hero)
-            .background(CardNavy)
-            .drawBehind {
-                // Teal disc top-right and a thin ring bottom-left, from the board.
-                drawCircle(CardTeal.copy(alpha = 0.85f), radius = 105.dp.toPx(), center = Offset(size.width + 10.dp.toPx(), 35.dp.toPx()))
-                drawCircle(Color.White.copy(alpha = 0.18f), radius = 80.dp.toPx(), center = Offset(40.dp.toPx(), size.height + 30.dp.toPx()), style = Stroke(1.5.dp.toPx()))
-            }
-            .padding(horizontal = 22.dp, vertical = 20.dp),
-    ) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("Skypass", style = TextStyle(fontFamily = JakartaSans, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp, letterSpacing = (-0.02).em), color = Color.White)
-            Spacer(Modifier.weight(1f))
-            PaymentLogo(shown.type, width = 58.dp, height = 38.dp)
-        }
-        Box(Modifier.align(Alignment.CenterStart).offset(y = (-8).dp).size(40.dp, 30.dp).background(PaperGold, RoundedCornerShape(7.dp)))
-        Column(Modifier.align(Alignment.BottomStart).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(
-                shown.last4?.let { "••••  ••••  ••••  $it" } ?: shown.label,
-                style = TextStyle(fontFamily = DmMono, fontSize = 17.sp, letterSpacing = 0.06.em),
-                color = Color.White,
-            )
-            Row {
-                CardField(stringResource(R.string.payment_card_holder), shown.holder.uppercase(), Modifier.weight(1f))
-                CardField(stringResource(R.string.payment_expires), shown.expiry ?: "—")
-            }
-        }
-    }
-}
-
-@Composable
-private fun CardField(label: String, value: String, modifier: Modifier = Modifier) {
-    Column(modifier) {
-        Text(label.uppercase(), style = TextStyle(fontFamily = DmMono, fontSize = 9.sp, letterSpacing = 0.08.em), color = Color.White.copy(alpha = 0.75f))
-        Text(value, style = TextStyle(fontFamily = JakartaSans, fontWeight = FontWeight.Bold, fontSize = 13.sp), color = Color.White, maxLines = 1)
-    }
+    SkypassCardFace(
+        network = shown.type,
+        number = shown.last4?.let { "••••  ••••  ••••  $it" } ?: shown.label,
+        holder = shown.holder,
+        expiry = shown.expiry ?: "—",
+        modifier = modifier.graphicsLayer {
+            rotationY = turn.value
+            cameraDistance = 12 * density
+        },
+    )
 }
 
 @Composable

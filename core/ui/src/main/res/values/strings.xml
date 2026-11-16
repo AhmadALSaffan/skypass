@@ -48,4 +48,6 @@
     <string name="card_problem_expiry">Use MM/YY, like 08/28.</string>
     <string name="card_problem_cvc">Enter the %1$d-digit code on the card.</string>
     <string name="card_problem_holder">Enter the name on the card.</string>
+    <string name="card_face_holder">Card holder</string>
+    <string name="card_face_expires">Expires</string>
 </resources>

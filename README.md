@@ -188,6 +188,15 @@ Your tier and travel stats, counted on the server from your own bookings, and ev
   - Flights (with today's economy fare, and Departed once they've gone), stays and places, in tabs.
   - A saved flight opens booking, a stay opens hotels in its city, and a place fills Home's search.
   - Remove with Undo. Explore's destination tiles now have hearts too.
+- 💳 **Payment methods**:
+  - Add Visa, Mastercard, American Express and Discover cards: the brand is recognised from the first digits, the number is grouped as printed (4-6-5 for Amex) and checked with Luhn, expiry and CVC rules, and a live card fills in as you type.
+  - Only the brand, last four digits, expiry and name are stored; the full number and CVC never leave the phone. The server checks the card is yours and unexpired when you pay.
+  - The official network marks and Google Pay on white tiles; make a card the default or remove it; add one right at checkout.
+- ⚙️ **Settings**:
+  - Push, gate & delay and price-drop alerts (asks for Android 13's notification permission), saved on your account.
+  - Currency (USD, EUR, GBP, NZ$) applied to every price in the app; checkout says flights are charged in US dollars.
+  - Dark mode (System, On, Off), home airport, connected accounts, sign out (guests are warned first).
+  - Biometric lock with BiometricPrompt: locks the app on start and after 30 seconds away, and confirms payments.
 - ⚡ **Fast start**: the splash screen only waits for the session saved on the phone, never the network; the Supabase client is built off the main thread while the activity starts. Data calls wait for a stale token's refresh on their own.
 - 🌗 **Light and dark**: every screen, from the same design tokens.
 - ♿ **Every state designed**: loading skeletons, empty, offline and error states with retry.
@@ -215,7 +224,7 @@ Your tier and travel stats, counted on the server from your own bookings, and ev
 | | |
 |---|---|
 | Tables | `airports`, `airlines`, `routes`, `flights`, `flight_instances`, `cabin_layouts`, `destinations`, `deals`, `promo_codes`, `profiles`, `passengers`, `bookings`, `booking_passengers`, `booking_seats`, `saved_items`, `hotels`, `hotel_reservations`, `cars`, `rental_reservations`, `user_settings` |
-| Functions | `search_flights`, `date_price_strip`, `flight_offer`, `get_seat_map`, `create_booking`, `pay_booking`, `check_promo`, `boarding_pass`, `next_trip`, `explore_destinations`, `reserve_hotel`, `reserve_car`, `my_flights`, `cancel_reservation`, `profile_stats`, `miles_between`, `saved_flights`, `saved_hotels`, `saved_destinations` |
+| Functions | `search_flights`, `date_price_strip`, `flight_offer`, `get_seat_map`, `create_booking`, `pay_booking`, `check_promo`, `boarding_pass`, `next_trip`, `explore_destinations`, `reserve_hotel`, `reserve_car`, `my_flights`, `cancel_reservation`, `profile_stats`, `miles_between`, `saved_flights`, `saved_hotels`, `saved_destinations`, `set_default_card` |
 | Security | Row-level security on every user table; catalogue tables are read-only; functions run with a fixed `search_path` |
 | Realtime | `flight_instances` updates, for live gate and status changes |
 | Data | 924,067 departures from 2026-11-15 to 2027-11-15, generated in SQL from a compact route list; 5 hotels in every city and 8 rental cars at every airport on the network |

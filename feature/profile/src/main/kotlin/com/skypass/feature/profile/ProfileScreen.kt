@@ -70,10 +70,12 @@ internal fun grouped(n: Int): String = NumberFormat.getIntegerInstance(Locale.US
 fun ProfileRoute(
     onSettings: () -> Unit,
     onPassengers: () -> Unit,
+    onPaymentMethods: () -> Unit,
     onSaved: () -> Unit,
     onTrips: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
+    val paymentMethods by rememberUpdatedState(onPaymentMethods)
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val settings by rememberUpdatedState(onSettings)
     val passengers by rememberUpdatedState(onPassengers)
@@ -84,6 +86,7 @@ fun ProfileRoute(
             when (effect) {
                 ProfileEffect.Settings -> settings()
                 ProfileEffect.Passengers -> passengers()
+                ProfileEffect.PaymentMethods -> paymentMethods()
                 ProfileEffect.Saved -> saved()
                 ProfileEffect.Trips -> trips()
             }
@@ -129,7 +132,6 @@ fun ProfileScreen(state: ProfileUiState, onEvent: (ProfileEvent) -> Unit, modifi
     }
     when (val sheet = state.sheet) {
         is ProfileSheet.PersonalInfo -> PersonalInfoSheet(sheet.draft, onEvent)
-        ProfileSheet.Payments -> PaymentsSheet(onDismiss = { onEvent(ProfileEvent.DismissSheet) })
         ProfileSheet.Help -> HelpSheet(onDismiss = { onEvent(ProfileEvent.DismissSheet) })
         null -> Unit
     }

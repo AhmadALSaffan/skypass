@@ -50,7 +50,8 @@ interface BookingRepository {
         idempotencyKey: String,
     ): Outcome<String, BookingError>
 
-    suspend fun pay(bookingId: String, method: PaymentMethodType): Outcome<ConfirmedBooking, BookingError>
+    /** Pays with [method]; a card payment names the saved card ([cardId]). */
+    suspend fun pay(bookingId: String, method: PaymentMethodType, cardId: String?): Outcome<ConfirmedBooking, BookingError>
 
     /** One pass per traveller on the booking. */
     suspend fun boardingPasses(bookingId: String): Outcome<List<BoardingPass>, AppError>

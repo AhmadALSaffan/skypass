@@ -9,6 +9,7 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.semantics.error
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.skypass.core.designsystem.theme.Durations
@@ -42,6 +44,9 @@ fun SkypassTextField(
     error: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     singleLine: Boolean = true,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    /** Shown at the end of the field, e.g. the card network's logo. */
+    trailing: (@Composable () -> Unit)? = null,
 ) {
     val colors = SkypassTheme.colors
     val interaction = remember { MutableInteractionSource() }
@@ -67,19 +72,25 @@ fun SkypassTextField(
                 .semantics { if (error != null) error(error) },
             contentAlignment = Alignment.CenterStart,
         ) {
-            if (value.isEmpty() && placeholder != null) {
-                Text(placeholder, style = SkypassTheme.typography.bodySm, color = colors.text2)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
+                    if (value.isEmpty() && placeholder != null) {
+                        Text(placeholder, style = SkypassTheme.typography.bodySm, color = colors.text2)
+                    }
+                    BasicTextField(
+                        value = value,
+                        onValueChange = onValueChange,
+                        singleLine = singleLine,
+                        textStyle = SkypassTheme.typography.bodyStrong.copy(color = colors.ink),
+                        cursorBrush = SolidColor(colors.brand),
+                        keyboardOptions = keyboardOptions,
+                        visualTransformation = visualTransformation,
+                        interactionSource = interaction,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                if (trailing != null) trailing()
             }
-            BasicTextField(
-                value = value,
-                onValueChange = onValueChange,
-                singleLine = singleLine,
-                textStyle = SkypassTheme.typography.bodyStrong.copy(color = colors.ink),
-                cursorBrush = SolidColor(colors.brand),
-                keyboardOptions = keyboardOptions,
-                interactionSource = interaction,
-                modifier = Modifier.fillMaxWidth(),
-            )
         }
         if (error != null) Text(error, style = SkypassTheme.typography.caption, color = colors.danger)
     }

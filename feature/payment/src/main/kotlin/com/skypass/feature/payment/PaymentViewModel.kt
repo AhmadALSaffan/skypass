@@ -3,7 +3,11 @@ package com.skypass.feature.payment
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.skypass.core.domain.usecase.AddCardUseCase
 import com.skypass.core.domain.usecase.CalculateBookingTotalUseCase
+import com.skypass.core.domain.usecase.ValidateCardUseCase
+import com.skypass.core.model.CardDraft
+import com.skypass.core.ui.CardForm
 import com.skypass.core.domain.usecase.CheckPromoUseCase
 import com.skypass.core.domain.usecase.GetFlightOfferUseCase
 import com.skypass.core.domain.usecase.GetPaymentMethodsUseCase
@@ -53,6 +57,8 @@ data class PaymentUiState(
     val price: PriceBreakdown = PriceBreakdown(),
     val payState: PayState = PayState.Idle,
     val payError: BookingError? = null,
+    /** The "Add a card" sheet, while open. */
+    val cardForm: CardForm? = null,
 ) {
     val method: PaymentMethod? get() = methods.getOrNull(selectedMethod)
     val seats: List<String> get() = legs.flatMap { leg -> leg.seats.map { it.code } }
@@ -67,6 +73,10 @@ sealed interface PaymentEvent {
     data object Pay : PaymentEvent
     data object Retry : PaymentEvent
     data object DismissPayError : PaymentEvent
+    data object AddCard : PaymentEvent
+    data class UpdateCard(val form: CardForm) : PaymentEvent
+    data object SaveCard : PaymentEvent
+    data object DismissAddCard : PaymentEvent
 }
 
 sealed interface PaymentEffect {
@@ -83,6 +93,8 @@ class PaymentViewModel @Inject constructor(
     private val checkPromo: CheckPromoUseCase,
     private val calculateTotal: CalculateBookingTotalUseCase,
     private val payForTrip: PayForTripUseCase,
+    private val addCard: AddCardUseCase,
+    private val validateCard: ValidateCardUseCase,
 ) : ViewModel() {
 
     private val args = PaymentArgs(savedStateHandle)
@@ -109,6 +121,13 @@ class PaymentViewModel @Inject constructor(
             PaymentEvent.Pay -> pay()
             PaymentEvent.Retry -> load()
             PaymentEvent.DismissPayError -> _uiState.update { it.copy(payError = null) }
+            PaymentEvent.AddCard -> if (_uiState.value.payState == PayState.Idle) {
+                // The first card a traveller adds becomes their default.
+                _uiState.update { it.copy(cardForm = CardForm(CardDraft(makeDefault = it.methods.none { m -> m.cardId != null }))) }
+            }
+            is PaymentEvent.UpdateCard -> _uiState.update { it.copy(cardForm = event.form) }
+            PaymentEvent.SaveCard -> saveCard()
+            PaymentEvent.DismissAddCard -> _uiState.update { if (it.cardForm?.saving == true) it else it.copy(cardForm = null) }
         }
     }
 
@@ -165,6 +184,7 @@ class PaymentViewModel @Inject constructor(
                 bags = args.bags,
                 promoCode = s.promo?.code,
                 method = method.type,
+                cardId = method.cardId,
             )
             when (val result = payForTrip(order, attemptId)) {
                 is Outcome.Success -> {
@@ -183,6 +203,28 @@ class PaymentViewModel @Inject constructor(
                     }
                     if (result.error == BookingError.InvalidPromo) reprice { it }
                 }
+            }
+        }
+    }
+
+    /** Saves the new card, then selects it so Pay uses it straight away. */
+    private fun saveCard() {
+        val form = _uiState.value.cardForm ?: return
+        if (form.saving) return
+        val problems = validateCard(form.draft)
+        if (problems.isNotEmpty()) {
+            _uiState.update { it.copy(cardForm = form.copy(problems = problems)) }
+            return
+        }
+        _uiState.update { it.copy(cardForm = form.copy(saving = true, failed = false)) }
+        viewModelScope.launch {
+            when (val result = addCard(form.draft)) {
+                is Outcome.Success -> {
+                    val methods = getPaymentMethods(observeSession().first())
+                    val index = methods.indexOfFirst { it.cardId == result.value.id }.coerceAtLeast(0)
+                    _uiState.update { it.copy(cardForm = null, methods = methods, selectedMethod = index, payError = null) }
+                }
+                is Outcome.Failure -> _uiState.update { it.copy(cardForm = it.cardForm?.copy(saving = false, failed = true)) }
             }
         }
     }

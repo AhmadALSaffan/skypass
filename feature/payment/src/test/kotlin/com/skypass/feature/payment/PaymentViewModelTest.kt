@@ -2,7 +2,18 @@ package com.skypass.feature.payment
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import com.skypass.core.domain.usecase.AddCardUseCase
 import com.skypass.core.domain.usecase.CalculateBookingTotalUseCase
+import com.skypass.core.domain.usecase.CardField
+import com.skypass.core.domain.usecase.CardProblem
+import com.skypass.core.domain.usecase.ValidateCardUseCase
+import com.skypass.core.model.CardBrand
+import com.skypass.core.model.CardDraft
+import com.skypass.core.testing.FakePaymentCardRepository
+import com.skypass.core.testing.TestCards
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneId
 import com.skypass.core.domain.usecase.CheckPromoUseCase
 import com.skypass.core.domain.usecase.GetFlightOfferUseCase
 import com.skypass.core.domain.usecase.GetPaymentMethodsUseCase
@@ -30,6 +41,8 @@ class PaymentViewModelTest {
     val mainDispatcher = MainDispatcherExtension()
 
     private val bookings = FakeBookingRepository()
+    private val cards = FakePaymentCardRepository()
+    private val clock = Clock.fixed(Instant.parse("2026-11-15T10:00:00Z"), ZoneId.of("UTC"))
     private val handle = SavedStateHandle(
         mapOf("outboundInstanceId" to "nz5", "outboundSeats" to "33C", "passengerIds" to "p-1", "cabin" to "economy", "bags" to 1),
     )
@@ -38,20 +51,63 @@ class PaymentViewModelTest {
         savedStateHandle = handle,
         getFlightOffer = GetFlightOfferUseCase(FakeFlightOfferRepository()),
         getSeatMap = GetSeatMapUseCase(FakeSeatMapRepository()),
-        getPaymentMethods = GetPaymentMethodsUseCase(),
+        getPaymentMethods = GetPaymentMethodsUseCase(cards, clock),
         observeSession = ObserveSessionUseCase(FakeAuthRepository(FakeAuthRepository.TINA)),
         checkPromo = CheckPromoUseCase(FakePromoRepository()),
         calculateTotal = CalculateBookingTotalUseCase(),
         payForTrip = PayForTripUseCase(bookings),
+        addCard = AddCardUseCase(cards, ValidateCardUseCase(clock)),
+        validateCard = ValidateCardUseCase(clock),
     )
 
     @Test
-    fun `shows the board's summary and three ways to pay`() {
+    fun `shows the board's summary, the saved cards (default first) and Google Pay`() {
+        cards.stored += TestCards.EXPIRED_AMEX
         val state = viewModel().uiState.value
         assertEquals(269, state.price.totalUsd)
+        // The expired Amex isn't offered.
         assertEquals(listOf(PaymentMethodType.Visa, PaymentMethodType.Mastercard, PaymentMethodType.GooglePay), state.methods.map { it.type })
+        assertEquals("card-1", state.method!!.cardId)
         assertEquals("Tina Anderson", state.method!!.holder)
         assertEquals(listOf("33C"), state.seats)
+    }
+
+    @Test
+    fun `paying names the selected card, Google Pay names none`() = runTest {
+        val vm = viewModel()
+        vm.onEvent(PaymentEvent.SelectMethod(1))
+        vm.effects.test {
+            vm.onEvent(PaymentEvent.Pay)
+            awaitItem()
+        }
+        assertEquals(PaymentMethodType.Mastercard to "card-2", bookings.paidWith.values.single())
+    }
+
+    @Test
+    fun `a card added at checkout is saved by its last four digits and selected`() {
+        val vm = viewModel()
+        vm.onEvent(PaymentEvent.AddCard)
+        val form = vm.uiState.value.cardForm!!
+        vm.onEvent(PaymentEvent.UpdateCard(form.edit(CardDraft(TestCards.AMEX_NUMBER, "0829", "1234", "Tina Anderson"))))
+        vm.onEvent(PaymentEvent.SaveCard)
+        assertNull(vm.uiState.value.cardForm)
+        val added = cards.stored.last()
+        assertEquals(CardBrand.Amex, added.brand)
+        assertEquals("0005", added.last4)
+        assertEquals("TINA ANDERSON", added.holder)
+        assertEquals(added.id, vm.uiState.value.method?.cardId)
+        assertEquals(PaymentMethodType.Amex, vm.uiState.value.method?.type)
+    }
+
+    @Test
+    fun `a bad card number keeps the sheet open with the problem`() {
+        val vm = viewModel()
+        vm.onEvent(PaymentEvent.AddCard)
+        val form = vm.uiState.value.cardForm!!
+        vm.onEvent(PaymentEvent.UpdateCard(form.edit(CardDraft("4242424242424241", "0829", "123", "Tina"))))
+        vm.onEvent(PaymentEvent.SaveCard)
+        assertEquals(CardProblem.Invalid, vm.uiState.value.cardForm!!.problems[CardField.Number])
+        assertEquals(2, cards.stored.size)
     }
 
     @Test

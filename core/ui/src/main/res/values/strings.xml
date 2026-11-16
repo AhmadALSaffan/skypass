@@ -28,4 +28,24 @@
     <string name="passenger_problem_not_issued">Can\'t be in the future</string>
     <string name="passenger_problem_required">Required</string>
     <string name="passenger_problem_six_months">Must be valid 6 months after your trip</string>
+    <string name="card_add_title">Add a card</string>
+    <string name="card_add_hint">Skypass keeps only the last four digits, the expiry and the name.</string>
+    <string name="card_number">Card number</string>
+    <string name="card_expiry">Expiry</string>
+    <string name="card_cvc">Security code</string>
+    <string name="card_holder">Name on card</string>
+    <string name="card_holder_hint">As printed on the card</string>
+    <string name="card_holder_placeholder">Your name</string>
+    <string name="card_default">Make this my default card</string>
+    <string name="card_default_hint">It\'s selected first at checkout.</string>
+    <string name="card_security">The full number and the security code are checked on your phone and never stored.</string>
+    <string name="card_save">Save card</string>
+    <string name="card_save_failed">That card didn\'t save. Check your connection and try again.</string>
+    <string name="card_problem_required">Required</string>
+    <string name="card_problem_unsupported">Skypass takes Visa, Mastercard, American Express and Discover.</string>
+    <string name="card_problem_expired">This card has expired.</string>
+    <string name="card_problem_number">Check the card number.</string>
+    <string name="card_problem_expiry">Use MM/YY, like 08/28.</string>
+    <string name="card_problem_cvc">Enter the %1$d-digit code on the card.</string>
+    <string name="card_problem_holder">Enter the name on the card.</string>
 </resources>

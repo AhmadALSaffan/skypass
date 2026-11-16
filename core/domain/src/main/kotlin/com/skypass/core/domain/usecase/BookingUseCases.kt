@@ -222,17 +222,6 @@ class CheckPromoUseCase @Inject constructor(private val promos: PromoRepository)
  * The traveller's saved ways to pay. A demo wallet: the board's Visa and Mastercard, plus Google
  * Pay on the signed-in email. Nothing here is a real card.
  */
-class GetPaymentMethodsUseCase @Inject constructor() {
-    operator fun invoke(session: UserSession?): List<PaymentMethod> {
-        val holder = session?.fullName ?: "Skypass traveller"
-        return listOf(
-            PaymentMethod(PaymentMethodType.Visa, "Visa", "•••• 4821 · Exp 08/28", "4821", "08/28", holder),
-            PaymentMethod(PaymentMethodType.Mastercard, "Mastercard", "•••• 9012 · Exp 02/27", "9012", "02/27", holder),
-            PaymentMethod(PaymentMethodType.GooglePay, "Google Pay", session?.email ?: "Google account", null, null, holder),
-        )
-    }
-}
-
 /**
  * Books and pays every leg. [attemptId] is stable across retries, so a dropped connection never
  * books or charges twice (each leg's server call is idempotent on a key derived from it).
@@ -248,7 +237,7 @@ class PayForTripUseCase @Inject constructor(private val bookings: BookingReposit
                 is Outcome.Success -> created.value
                 is Outcome.Failure -> return created
             }
-            when (val paid = bookings.pay(bookingId, order.method)) {
+            when (val paid = bookings.pay(bookingId, order.method, order.cardId)) {
                 is Outcome.Success -> confirmed += paid.value
                 is Outcome.Failure -> return paid
             }

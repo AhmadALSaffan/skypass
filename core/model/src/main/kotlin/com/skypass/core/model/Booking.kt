@@ -104,9 +104,14 @@ data class PriceBreakdown(
     val totalUsd: Int get() = fareUsd - discountUsd + taxesUsd + seatFeesUsd + bagsUsd
 }
 
-enum class PaymentMethodType(val apiValue: String) { Visa("visa"), Mastercard("mastercard"), GooglePay("google_pay") }
+enum class PaymentMethodType(val apiValue: String) {
+    Visa("visa"), Mastercard("mastercard"), Amex("amex"), Discover("discover"), GooglePay("google_pay")
+}
 
-/** A saved way to pay. Card numbers are never stored in full, only the last four digits. */
+/**
+ * A way to pay at checkout: one of the traveller's saved cards ([cardId] set) or Google Pay.
+ * Card numbers are never stored in full, only the last four digits.
+ */
 data class PaymentMethod(
     val type: PaymentMethodType,
     val label: String,
@@ -114,6 +119,8 @@ data class PaymentMethod(
     val last4: String?,
     val expiry: String?,
     val holder: String,
+    val cardId: String? = null,
+    val isDefault: Boolean = false,
 )
 
 /** One leg to book: departure, seats in traveller order, bags. */
@@ -129,12 +136,14 @@ data class TripOrder(
     val bags: Int,
     val promoCode: String?,
     val method: PaymentMethodType,
+    /** The saved card paying, when [method] is a card. */
+    val cardId: String? = null,
 )
 
 /** A confirmed booking for one leg. */
 data class ConfirmedBooking(val bookingId: String, val pnr: String, val totalUsd: Int)
 
-enum class BookingError { SeatTaken, InvalidPromo, Network, Unknown }
+enum class BookingError { SeatTaken, InvalidPromo, CardDeclined, Network, Unknown }
 
 /** One printed pass per traveller. */
 data class BoardingPass(

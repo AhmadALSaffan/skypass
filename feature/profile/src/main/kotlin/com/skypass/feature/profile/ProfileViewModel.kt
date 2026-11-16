@@ -41,7 +41,6 @@ data class PersonalInfoDraft(
 /** The sheets Profile can open over itself. */
 sealed interface ProfileSheet {
     data class PersonalInfo(val draft: PersonalInfoDraft) : ProfileSheet
-    data object Payments : ProfileSheet
     data object Help : ProfileSheet
 }
 
@@ -83,6 +82,7 @@ sealed interface ProfileEvent {
 sealed interface ProfileEffect {
     data object Settings : ProfileEffect
     data object Passengers : ProfileEffect
+    data object PaymentMethods : ProfileEffect
     data object Saved : ProfileEffect
     data object Trips : ProfileEffect
 }
@@ -120,7 +120,7 @@ class ProfileViewModel @Inject constructor(
             ProfileEvent.OpenPassengers -> send(ProfileEffect.Passengers)
             ProfileEvent.OpenSaved -> send(ProfileEffect.Saved)
             ProfileEvent.OpenTrips -> send(ProfileEffect.Trips)
-            ProfileEvent.OpenPayments -> _uiState.update { it.copy(sheet = ProfileSheet.Payments) }
+            ProfileEvent.OpenPayments -> send(ProfileEffect.PaymentMethods)
             ProfileEvent.OpenHelp -> _uiState.update { it.copy(sheet = ProfileSheet.Help) }
             ProfileEvent.DismissSheet -> {
                 val draft = (_uiState.value.sheet as? ProfileSheet.PersonalInfo)?.draft

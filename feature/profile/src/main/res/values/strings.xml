@@ -42,11 +42,23 @@
     <string name="profile_save">Save</string>
 
     <string name="profile_payments_hint">How you can pay when you book a flight.</string>
+    <string name="profile_payments_subtitle">Cards and wallets for checkout</string>
+    <string name="profile_cards">Cards</string>
+    <string name="profile_wallets">Wallets</string>
+    <string name="profile_add_card">Add a card</string>
+    <string name="profile_no_cards">No cards yet. Add one and checkout takes a tap.</string>
+    <string name="profile_card_ending">%1$s •••• %2$s</string>
+    <string name="profile_card_expires">Expires %1$s</string>
+    <string name="profile_card_expired">Expired %1$s</string>
+    <string name="profile_card_default">Default</string>
+    <string name="profile_make_default">Make default</string>
+    <string name="profile_remove_card_q">Remove this card?</string>
+    <string name="profile_pay_ready">Ready</string>
     <string name="profile_pay_visa">Visa</string>
     <string name="profile_pay_mastercard">Mastercard</string>
     <string name="profile_pay_google">Google Pay</string>
     <string name="profile_pay_cards">Credit or debit card</string>
-    <string name="profile_pay_google_detail">Cards saved in your Google account</string>
+    <string name="profile_pay_google_detail">Pay with the cards in your Google account at checkout</string>
     <string name="profile_pay_not_stored">Skypass never stores card numbers. Payments are encrypted end to end.</string>
     <string name="profile_pay_stays">Hotels and rental cars are paid at the property or the desk.</string>
     <string name="profile_close">Close</string>

@@ -61,6 +61,8 @@ import com.skypass.feature.results.navigation.resultsScreen
 import com.skypass.feature.results.navigation.toResultsDestination
 import com.skypass.core.model.Cabin
 import com.skypass.feature.profile.navigation.PassengersDestination
+import com.skypass.feature.profile.navigation.PaymentMethodsDestination
+import com.skypass.feature.profile.navigation.paymentMethodsScreen
 import com.skypass.feature.profile.navigation.ProfileDestination
 import com.skypass.feature.profile.navigation.passengersScreen
 import com.skypass.feature.profile.navigation.profileScreen
@@ -164,10 +166,12 @@ fun SkypassNavHost(startScreen: StartScreen) {
             profileScreen(
                 onSettings = { navController.navigate(SettingsDestination) },
                 onPassengers = { navController.navigate(PassengersDestination) },
+                onPaymentMethods = { navController.navigate(PaymentMethodsDestination) },
                 onSaved = { navController.switchTab(Tab.Saved) },
                 onTrips = { navController.navigate(TripsDestination()) },
             )
             passengersScreen(onBack = { navController.popBackStack() })
+            paymentMethodsScreen(onBack = { navController.popBackStack() })
             composable<SettingsDestination> {
                 SettingsPlaceholder(
                     onBack = { navController.popBackStack() },

@@ -211,41 +211,6 @@ private fun AirportPicker(draft: PersonalInfoDraft, onEvent: (ProfileEvent) -> U
 }
 
 // ---------------------------------------------------------------------------------------------
-// Payment methods
-// ---------------------------------------------------------------------------------------------
-
-@Composable
-internal fun PaymentsSheet(onDismiss: () -> Unit) {
-    val colors = SkypassTheme.colors
-    Sheet(onDismiss) {
-        Column(
-            Modifier.padding(horizontal = 20.dp).navigationBarsPadding().padding(bottom = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            SheetTitle(stringResource(R.string.profile_payments), stringResource(R.string.profile_payments_hint))
-            InfoCard {
-                listOf(
-                    R.string.profile_pay_visa to R.string.profile_pay_cards,
-                    R.string.profile_pay_mastercard to R.string.profile_pay_cards,
-                    R.string.profile_pay_google to R.string.profile_pay_google_detail,
-                ).forEachIndexed { i, (name, detail) ->
-                    if (i > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(colors.borderSoft))
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Box(Modifier.size(38.dp).clip(Shapes.tile).background(colors.bg), contentAlignment = Alignment.Center) {
-                            Icon(SkypassIcons.Card, contentDescription = null, tint = colors.ink, modifier = Modifier.size(18.dp))
-                        }
-                        LabeledValue(stringResource(detail), stringResource(name), Modifier.weight(1f))
-                    }
-                }
-            }
-            PolicyNote(stringResource(R.string.profile_pay_not_stored), positive = true)
-            PolicyNote(stringResource(R.string.profile_pay_stays), positive = false)
-            OutlinedButton(stringResource(R.string.profile_close), onClick = onDismiss, modifier = Modifier.fillMaxWidth())
-        }
-    }
-}
-
-// ---------------------------------------------------------------------------------------------
 // Help centre
 // ---------------------------------------------------------------------------------------------
 

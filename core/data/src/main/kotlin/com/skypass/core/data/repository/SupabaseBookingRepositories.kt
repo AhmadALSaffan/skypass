@@ -317,12 +317,13 @@ internal class SupabaseBookingRepository @Inject constructor(
         ).decodeAs<BookingRowDto>().id
     }
 
-    override suspend fun pay(bookingId: String, method: PaymentMethodType): Outcome<ConfirmedBooking, BookingError> = bookingCall {
+    override suspend fun pay(bookingId: String, method: PaymentMethodType, cardId: String?): Outcome<ConfirmedBooking, BookingError> = bookingCall {
         val row = supabase.postgrest.rpc(
             "pay_booking",
             buildJsonObject {
                 put("p_booking_id", bookingId)
                 put("p_method", method.apiValue)
+                put("p_card_id", cardId)
             },
         ).decodeAs<BookingRowDto>()
         ConfirmedBooking(row.id, row.pnr.orEmpty(), row.totalUsd.toInt())
@@ -349,6 +350,7 @@ internal class SupabaseBookingRepository @Inject constructor(
             when {
                 "seat_taken" in text || "duplicate_seat" in text -> BookingError.SeatTaken
                 "invalid_promo" in text -> BookingError.InvalidPromo
+                "invalid_card" in text || "card_expired" in text -> BookingError.CardDeclined
                 else -> BookingError.Unknown
             },
         )

@@ -70,6 +70,9 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.skypass.core.ui.AddCardSheet
+import androidx.compose.ui.draw.clip
+import com.skypass.core.designsystem.component.PaymentLogo
 import com.skypass.core.designsystem.component.Eyebrow
 import com.skypass.core.designsystem.component.IconCircleButton
 import com.skypass.core.designsystem.component.SectionHeader
@@ -149,6 +152,7 @@ internal fun PaymentScreen(uiState: PaymentUiState, onEvent: (PaymentEvent) -> U
                 uiState.methods.forEachIndexed { i, m ->
                     MethodRow(m, selected = i == uiState.selectedMethod, onClick = { onEvent(PaymentEvent.SelectMethod(i)) })
                 }
+                AddCardRow(onClick = { onEvent(PaymentEvent.AddCard) })
             }
 
             PromoRow(uiState, onEvent, Modifier.reveal(2))
@@ -162,6 +166,46 @@ internal fun PaymentScreen(uiState: PaymentUiState, onEvent: (PaymentEvent) -> U
         }
 
         Footer(uiState, onPay = { onEvent(PaymentEvent.Pay) })
+    }
+    uiState.cardForm?.let { form ->
+        AddCardSheet(
+            form = form,
+            onChange = { onEvent(PaymentEvent.UpdateCard(it)) },
+            onSave = { onEvent(PaymentEvent.SaveCard) },
+            onDismiss = { onEvent(PaymentEvent.DismissAddCard) },
+            saveLabel = stringResource(R.string.payment_save_card),
+        )
+    }
+}
+
+/** Dashed "Add a card" row under the saved methods. */
+@Composable
+private fun AddCardRow(onClick: () -> Unit) {
+    val colors = SkypassTheme.colors
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(64.dp)
+            .clip(Shapes.button)
+            .drawBehind {
+                drawRoundRect(
+                    color = colors.borderStrong,
+                    cornerRadius = CornerRadius(18.dp.toPx()),
+                    style = Stroke(1.5.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 5.dp.toPx()))),
+                )
+            }
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Box(Modifier.size(46.dp, 32.dp).background(colors.surfaceSunken, Shapes.xs), contentAlignment = Alignment.Center) {
+            Icon(SkypassIcons.Plus, contentDescription = null, tint = colors.ink, modifier = Modifier.size(18.dp))
+        }
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(R.string.payment_add_card), style = SkypassTheme.typography.label, color = colors.ink)
+            Text(stringResource(R.string.payment_add_card_detail), style = SkypassTheme.typography.caption, color = colors.text2, maxLines = 1)
+        }
     }
 }
 
@@ -189,7 +233,8 @@ private fun CardPreview(method: PaymentMethod, modifier: Modifier = Modifier) {
                 cameraDistance = 12 * density
             }
             .softShadow(SoftShadow.Float, Shapes.hero)
-            .background(CardNavy, Shapes.hero)
+            .clip(Shapes.hero)
+            .background(CardNavy)
             .drawBehind {
                 // Teal disc top-right and a thin ring bottom-left, from the board.
                 drawCircle(CardTeal.copy(alpha = 0.85f), radius = 105.dp.toPx(), center = Offset(size.width + 10.dp.toPx(), 35.dp.toPx()))
@@ -200,7 +245,7 @@ private fun CardPreview(method: PaymentMethod, modifier: Modifier = Modifier) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text("Skypass", style = TextStyle(fontFamily = JakartaSans, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp, letterSpacing = (-0.02).em), color = Color.White)
             Spacer(Modifier.weight(1f))
-            Text(networkMark(shown.type), style = TextStyle(fontFamily = JakartaSans, fontWeight = FontWeight.ExtraBold, fontStyle = FontStyle.Italic, fontSize = 14.sp), color = Color.White)
+            PaymentLogo(shown.type, width = 58.dp, height = 38.dp)
         }
         Box(Modifier.align(Alignment.CenterStart).offset(y = (-8).dp).size(40.dp, 30.dp).background(PaperGold, RoundedCornerShape(7.dp)))
         Column(Modifier.align(Alignment.BottomStart).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -225,12 +270,6 @@ private fun CardField(label: String, value: String, modifier: Modifier = Modifie
     }
 }
 
-private fun networkMark(type: PaymentMethodType) = when (type) {
-    PaymentMethodType.Visa -> "VISA"
-    PaymentMethodType.Mastercard -> "MC"
-    PaymentMethodType.GooglePay -> "GPay"
-}
-
 @Composable
 private fun MethodRow(method: PaymentMethod, selected: Boolean, onClick: () -> Unit) {
     val colors = SkypassTheme.colors
@@ -246,11 +285,12 @@ private fun MethodRow(method: PaymentMethod, selected: Boolean, onClick: () -> U
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Box(Modifier.size(46.dp, 32.dp).background(colors.surfaceSunken, Shapes.xs), contentAlignment = Alignment.Center) {
-            Text(networkMark(method.type), style = SkypassTheme.typography.pill.copy(fontStyle = FontStyle.Italic, fontWeight = FontWeight.ExtraBold), color = colors.ink)
-        }
+        PaymentLogo(method.type)
         Column(Modifier.weight(1f)) {
-            Text(method.label, style = SkypassTheme.typography.label, color = colors.ink)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(method.label, style = SkypassTheme.typography.label, color = colors.ink)
+                if (method.isDefault) StatusPill(stringResource(R.string.payment_default))
+            }
             Text(method.detail, style = SkypassTheme.typography.caption, color = colors.text2, maxLines = 1)
         }
         Box(Modifier.size(22.dp).border(2.dp, if (selected) colors.ink else colors.borderStrong, CircleShape), contentAlignment = Alignment.Center) {
@@ -371,6 +411,7 @@ private fun PayErrorBanner(error: BookingError, onDismiss: () -> Unit) {
                 when (error) {
                     BookingError.SeatTaken -> R.string.payment_error_seat
                     BookingError.InvalidPromo -> R.string.payment_error_promo
+                    BookingError.CardDeclined -> R.string.payment_error_card
                     BookingError.Network -> R.string.payment_error_network
                     BookingError.Unknown -> R.string.payment_error_other
                 },

@@ -34,4 +34,9 @@
     <string name="payment_error_other">Payment didn\'t go through. Nothing was charged; try again.</string>
     <string name="payment_load_error">Couldn\'t load your booking</string>
     <string name="payment_retry">Try again</string>
+    <string name="payment_add_card">Add a card</string>
+    <string name="payment_add_card_detail">Visa, Mastercard, American Express or Discover</string>
+    <string name="payment_save_card">Save and use this card</string>
+    <string name="payment_default">Default</string>
+    <string name="payment_error_card">That card was declined or has expired. Choose another way to pay.</string>
 </resources>

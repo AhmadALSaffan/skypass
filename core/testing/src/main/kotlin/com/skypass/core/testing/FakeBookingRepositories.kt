@@ -112,8 +112,12 @@ class FakeBookingRepository : BookingRepository {
         return Outcome.Success(created.getOrPut(idempotencyKey) { "b-${created.size + 1}" })
     }
 
-    override suspend fun pay(bookingId: String, method: PaymentMethodType): Outcome<ConfirmedBooking, BookingError> {
+    /** The card each booking was paid with (null for Google Pay). */
+    val paidWith = linkedMapOf<String, Pair<PaymentMethodType, String?>>()
+
+    override suspend fun pay(bookingId: String, method: PaymentMethodType, cardId: String?): Outcome<ConfirmedBooking, BookingError> {
         payError?.let { return Outcome.Failure(it) }
+        paidWith[bookingId] = method to cardId
         if (bookingId !in paid) paid += bookingId
         return Outcome.Success(ConfirmedBooking(bookingId, "SKP7Q2", 269))
     }

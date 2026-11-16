@@ -89,6 +89,15 @@ The tiles, the deal and the photo grid are for inspiration. Tapping a destinatio
 | **Light** | <img src="docs/screenshots/light/explore.jpg" width="170"> | <img src="docs/screenshots/light/explore-beaches.jpg" width="170"> | <img src="docs/screenshots/light/explore-search.jpg" width="170"> |
 | **Dark** | <img src="docs/screenshots/dark/explore.jpg" width="170"> | <img src="docs/screenshots/dark/explore-beaches.jpg" width="170"> | <img src="docs/screenshots/dark/explore-search.jpg" width="170"> |
 
+### Hotels
+
+Stays in the city you're flying to, from the day you land. Every city on the network has stays. Pick a room and the server prices and books it.
+
+| | Hotels | Choose a room | Booked |
+|:---:|:---:|:---:|:---:|
+| **Light** | <img src="docs/screenshots/light/hotels.jpg" width="170"> | <img src="docs/screenshots/light/hotel-rooms.jpg" width="170"> | <img src="docs/screenshots/light/hotel-reserved.jpg" width="170"> |
+| **Dark** | <img src="docs/screenshots/dark/hotels.jpg" width="170"> | <img src="docs/screenshots/dark/hotel-rooms.jpg" width="170"> | <img src="docs/screenshots/dark/hotel-reserved.jpg" width="170"> |
+
 ---
 
 ## Features
@@ -124,6 +133,13 @@ The tiles, the deal and the photo grid are for inspiration. Tapping a destinatio
   - Category chips and a two-column photo grid, priced from your own airport.
   - Search covers cities, countries and airports.
   - The search and the chosen chip survive process death.
+- 🏨 **Hotels**:
+  - Opens on the arrival city of your next trip, from the day you land, for a week; change the city, dates and guests in one sheet.
+  - All, Under $250, 5-star and Free cancel chips.
+  - Cards show the rating, stars, amenities, the nightly rate and the total for your stay.
+  - Hearts save a hotel, with a little bounce.
+  - Standard, Deluxe and Suite rooms, offered only when they fit your party.
+  - Reserving is priced on the server and idempotent, like flights. The map button opens the city's hotels in your maps app.
 - 🌗 **Light and dark**: every screen, from the same design tokens.
 - ♿ **Every state designed**: loading skeletons, empty, offline and error states with retry.
 
@@ -139,9 +155,9 @@ The tiles, the deal and the photo grid are for inspiration. Tapping a destinatio
 ```
 
 - **MVVM, one direction.** Each screen is a `XRoute` (collects state and one-off effects, gets its ViewModel from Hilt), then a stateless `XScreen(uiState, onEvent)`, then a `XViewModel` holding a `StateFlow` of UI state, a sealed `Event` and a `Channel` of `Effect`s.
-- **Single responsibility.** One use case per action: `SearchFlightsUseCase`, `CalculateBookingTotalUseCase`, `ValidatePassengerUseCase`, `PayForTripUseCase`, `GetExploreCatalogUseCase` and more. ViewModels only map state.
-- **Open/closed.** Sorting is a `FlightSortStrategy`. The price is a chain of `PriceRule`s (fare, promo, tax, seat fee, bags). A new rule is a new class.
-- **Interface segregation.** Small repositories: `FlightSearchRepository`, `SeatMapRepository`, `PassengerRepository`, `BookingRepository`, `ExploreRepository`, `SearchIntentRepository` and more. There's no "god" repository.
+- **Single responsibility.** One use case per action: `SearchFlightsUseCase`, `CalculateBookingTotalUseCase`, `ValidatePassengerUseCase`, `PayForTripUseCase`, `GetExploreCatalogUseCase`, `ReserveHotelUseCase` and more. ViewModels only map state.
+- **Open/closed.** Sorting is a `FlightSortStrategy`. The price is a chain of `PriceRule`s (fare, promo, tax, seat fee, bags). Each hotel chip is a rule on `HotelFilter`. A new rule is a new class or entry.
+- **Interface segregation.** Small repositories: `FlightSearchRepository`, `SeatMapRepository`, `PassengerRepository`, `BookingRepository`, `ExploreRepository`, `SearchIntentRepository`, `HotelRepository`, `SavedHotelsRepository` and more. There's no "god" repository.
 - **Dependency inversion.** Features see interfaces from `:core:domain` only; Hilt binds the Supabase implementations in `:core:data`. Fakes in `:core:testing` replace them in tests.
 - **Server as the source of truth.** Prices, seat holds, promo codes and the PNR are computed in Postgres functions. The app shows the same numbers.
 
@@ -149,11 +165,11 @@ The tiles, the deal and the photo grid are for inspiration. Tapping a destinatio
 
 | | |
 |---|---|
-| Tables | `airports`, `airlines`, `routes`, `flights`, `flight_instances`, `cabin_layouts`, `destinations`, `deals`, `promo_codes`, `profiles`, `passengers`, `bookings`, `booking_passengers`, `booking_seats`, `saved_items`, `hotels`, `cars`, `rental_reservations`, `user_settings` |
-| Functions | `search_flights`, `date_price_strip`, `flight_offer`, `get_seat_map`, `create_booking`, `pay_booking`, `check_promo`, `boarding_pass`, `next_trip`, `explore_destinations` |
+| Tables | `airports`, `airlines`, `routes`, `flights`, `flight_instances`, `cabin_layouts`, `destinations`, `deals`, `promo_codes`, `profiles`, `passengers`, `bookings`, `booking_passengers`, `booking_seats`, `saved_items`, `hotels`, `hotel_reservations`, `cars`, `rental_reservations`, `user_settings` |
+| Functions | `search_flights`, `date_price_strip`, `flight_offer`, `get_seat_map`, `create_booking`, `pay_booking`, `check_promo`, `boarding_pass`, `next_trip`, `explore_destinations`, `reserve_hotel` |
 | Security | Row-level security on every user table; catalogue tables are read-only; functions run with a fixed `search_path` |
 | Realtime | `flight_instances` updates, for live gate and status changes |
-| Data | 924,067 departures from 2026-11-15 to 2027-11-15, generated in SQL from a compact route list |
+| Data | 924,067 departures from 2026-11-15 to 2027-11-15, generated in SQL from a compact route list; 5 hotels in every city on the network |
 
 ---
 
@@ -259,7 +275,8 @@ feature/
 ├── booking/            passengers and the seat map
 ├── payment/            methods, promo code, pay
 ├── confirmation/       the printer and the boarding pass
-└── explore/            tiles, deal, categories, destination grid
+├── explore/            tiles, deal, categories, destination grid
+└── hotels/             stays, filters, the stay sheet, rooms and reservations
 supabase/migrations/    schema, functions, security, seed data
 docs/                   screenshots and GIFs for this README
 ```
@@ -281,6 +298,7 @@ Pull requests are welcome. For major changes, please open an issue first.
 ## Credits
 
 - Destination photos come from [Wikimedia Commons](https://commons.wikimedia.org/), each under its own Creative Commons licence; the author and licence are on each file's page.
+- Hotel photos come from [Unsplash](https://unsplash.com/), under the Unsplash License.
 - Airline logos are loaded from Kiwi.com's public image CDN and belong to their airlines.
 - Air New Zealand's name, wordmark and koru belong to Air New Zealand. This is a non-commercial portfolio project and isn't affiliated with or endorsed by Air New Zealand.
 - The Google Wallet mark follows Google's brand guidelines.

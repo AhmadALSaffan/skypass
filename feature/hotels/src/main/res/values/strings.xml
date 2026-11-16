@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hotels_title">Hotels in %1$s</string>
+    <plurals name="hotels_guests">
+        <item quantity="one">%d guest</item>
+        <item quantity="other">%d guests</item>
+    </plurals>
+    <plurals name="hotels_rooms">
+        <item quantity="one">%d room</item>
+        <item quantity="other">%d rooms</item>
+    </plurals>
+    <plurals name="hotels_nights">
+        <item quantity="one">%d night</item>
+        <item quantity="other">%d nights</item>
+    </plurals>
+    <plurals name="hotels_nights_total">
+        <item quantity="one">%1$s for %2$d night</item>
+        <item quantity="other">%1$s for %2$d nights</item>
+    </plurals>
+    <plurals name="hotels_reviews">
+        <item quantity="one">%s review</item>
+        <item quantity="other">%s reviews</item>
+    </plurals>
+    <string name="hotels_edit_stay">Change your stay</string>
+    <string name="hotels_map">Show on a map</string>
+    <string name="hotels_save">Save hotel</string>
+    <string name="hotels_unsave">Remove from saved</string>
+    <string name="hotels_free_cancel">Free cancellation</string>
+    <string name="hotels_area">%1$s · %2$s km</string>
+    <string name="hotels_per_night">/ night</string>
+    <string name="hotels_view_rooms">View rooms</string>
+    <string name="hotels_empty">No stays match this filter.</string>
+    <string name="hotels_offline_title">Can\'t load stays</string>
+    <string name="hotels_offline_body">Check your connection and try again.</string>
+    <string name="hotels_retry">Try again</string>
+    <string name="hotels_stars">%d stars</string>
+    <string name="hotels_rating">Rated %1$s by guests</string>
+
+    <string name="hotels_your_stay">Your stay</string>
+    <string name="hotels_city">City</string>
+    <string name="hotels_dates">Dates</string>
+    <string name="hotels_guests_label">Guests</string>
+    <string name="hotels_fewer_guests">Fewer guests</string>
+    <string name="hotels_more_guests">More guests</string>
+    <string name="hotels_show_stays">Show stays</string>
+    <string name="hotels_search_city">Search cities</string>
+    <string name="hotels_no_city">No city matches “%1$s”.</string>
+    <string name="hotels_pick_dates">Pick your dates</string>
+    <string name="hotels_done">Done</string>
+    <string name="hotels_cancel">Cancel</string>
+    <string name="hotels_problem_past">Check-in can\'t be in the past.</string>
+    <string name="hotels_problem_nights">Stay at least one night.</string>
+    <string name="hotels_problem_long">Stays can be up to 30 nights.</string>
+    <string name="hotels_problem_guests">Up to 4 guests per room.</string>
+
+    <string name="hotels_choose_room">Choose your room</string>
+    <string name="hotels_sleeps">Sleeps %d</string>
+    <string name="hotels_reserve">Reserve · %1$s</string>
+    <string name="hotels_reserved">You\'re booked in</string>
+    <string name="hotels_reserved_body">Reservation %1$s · %2$s</string>
+    <string name="hotels_error_dates">Those dates aren\'t available. Change your stay and try again.</string>
+    <string name="hotels_error_guests">Too many guests for this room. Pick a bigger one.</string>
+    <string name="hotels_error_network">No connection. Nothing was booked; try again.</string>
+    <string name="hotels_error_unknown">That didn\'t work. Nothing was booked; try again.</string>
+</resources>

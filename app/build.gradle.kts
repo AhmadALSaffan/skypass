@@ -41,6 +41,7 @@ dependencies {
     implementation(projects.feature.payment)
     implementation(projects.feature.confirmation)
     implementation(projects.feature.explore)
+    implementation(projects.feature.hotels)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)

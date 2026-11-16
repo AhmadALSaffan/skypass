@@ -148,3 +148,57 @@ data class ExploreCatalog(
  * departs from a fixed airport). Codes, not airports, so any tab can make one.
  */
 data class SearchIntent(val toCode: String, val fromCode: String? = null)
+
+data class Hotel(
+    val id: String,
+    val city: String,
+    val name: String,
+    /** "Auckland Airport", "Wynyard Quarter"… */
+    val area: String,
+    /** Distance from the city's airport, as on the board ("Auckland Airport · 0.4 km"). */
+    val distanceKm: Double,
+    val stars: Int,
+    val rating: Double,
+    val reviewCount: Int,
+    /** Standard room, per night. */
+    val pricePerNightUsd: Int,
+    val freeCancellation: Boolean,
+    val amenities: List<String>,
+    val imageUrl: String? = null,
+)
+
+/** Room types the server prices: nightly rate × [factor], for up to [capacity] guests. */
+enum class RoomType(val label: String, val apiValue: String, val factor: Double, val capacity: Int) {
+    Standard("Standard room", "standard", 1.0, 2),
+    Deluxe("Deluxe room", "deluxe", 1.35, 3),
+    Suite("Suite", "suite", 1.9, 4),
+}
+
+/** Where and when the traveller is staying. */
+data class Stay(
+    val city: String,
+    val checkIn: java.time.LocalDate,
+    val checkOut: java.time.LocalDate,
+    val guests: Int,
+    val rooms: Int = 1,
+) {
+    val nights: Int get() = java.time.temporal.ChronoUnit.DAYS.between(checkIn, checkOut).toInt()
+
+    companion object {
+        const val MIN_GUESTS = 1
+        const val MAX_GUESTS = 4
+        const val MAX_NIGHTS = 30
+    }
+}
+
+/** The board's filter chips. Each is a rule a hotel passes or not. */
+enum class HotelFilter(val label: String, val matches: (Hotel) -> Boolean) {
+    All("All", { true }),
+    Under250("Under \$250", { it.pricePerNightUsd < 250 }),
+    FiveStar("5-star", { it.stars == 5 }),
+    FreeCancel("Free cancel", { it.freeCancellation }),
+}
+
+data class HotelReservation(val reference: String, val totalUsd: Int, val nights: Int)
+
+enum class ReservationError { InvalidDates, TooManyGuests, Network, Unknown }

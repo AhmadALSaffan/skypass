@@ -7,6 +7,8 @@ import com.skypass.core.data.repository.SupabaseAuthRepository
 import com.skypass.core.data.repository.SupabaseBookingRepository
 import com.skypass.core.data.repository.SupabaseDestinationRepository
 import com.skypass.core.data.repository.SupabaseExploreRepository
+import com.skypass.core.data.repository.SupabaseHotelRepository
+import com.skypass.core.data.repository.SupabaseSavedHotelsRepository
 import com.skypass.core.data.repository.InMemorySearchIntentRepository
 import com.skypass.core.data.repository.SupabasePromoRepository
 import com.skypass.core.data.repository.SupabaseFlightOfferRepository
@@ -21,6 +23,8 @@ import com.skypass.core.domain.repository.AuthRepository
 import com.skypass.core.domain.repository.BookingRepository
 import com.skypass.core.domain.repository.DestinationRepository
 import com.skypass.core.domain.repository.ExploreRepository
+import com.skypass.core.domain.repository.HotelRepository
+import com.skypass.core.domain.repository.SavedHotelsRepository
 import com.skypass.core.domain.repository.SearchIntentRepository
 import com.skypass.core.domain.repository.PromoRepository
 import com.skypass.core.domain.repository.FlightOfferRepository
@@ -64,6 +68,12 @@ internal abstract class DataModule {
     @Binds
     @Singleton
     abstract fun bindSearchIntentRepository(impl: InMemorySearchIntentRepository): SearchIntentRepository
+
+    @Binds
+    abstract fun bindHotelRepository(impl: SupabaseHotelRepository): HotelRepository
+
+    @Binds
+    abstract fun bindSavedHotelsRepository(impl: SupabaseSavedHotelsRepository): SavedHotelsRepository
 
     @Binds
     abstract fun bindTripRepository(impl: SupabaseTripRepository): TripRepository

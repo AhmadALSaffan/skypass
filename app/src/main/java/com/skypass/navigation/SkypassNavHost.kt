@@ -52,6 +52,8 @@ import com.skypass.feature.explore.navigation.ExploreDestination
 import com.skypass.feature.explore.navigation.exploreScreen
 import com.skypass.feature.hotels.navigation.HotelsDestination
 import com.skypass.feature.hotels.navigation.hotelsScreen
+import com.skypass.feature.cars.navigation.CarsDestination
+import com.skypass.feature.cars.navigation.carsScreen
 import com.skypass.feature.onboarding.navigation.OnboardingDestination
 import com.skypass.feature.onboarding.navigation.onboardingScreen
 import com.skypass.feature.results.navigation.ResultsDestination
@@ -62,7 +64,6 @@ import kotlin.reflect.KClass
 
 @Serializable data object SavedDestination
 @Serializable data object ProfileDestination
-@Serializable data object CarsDestination
 
 /** The four tabs from the board, icon-only with an active dot. */
 private enum class Tab(val route: Any, val routeClass: KClass<*>, val item: BottomBarItem) {
@@ -127,7 +128,7 @@ fun SkypassNavHost(startScreen: StartScreen) {
                 onOpenCars = { navController.navigate(CarsDestination) },
             )
             hotelsScreen(onBack = { navController.popBackStack() })
-            composable<CarsDestination> { ComingSoon("Car rental", phase = 10) }
+            carsScreen(onBack = { navController.popBackStack() })
             composable<SavedDestination> { ComingSoon("Saved", phase = 11) }
             composable<ProfileDestination> {
                 ProfilePlaceholder(onSignedOut = { navController.replaceAll(SignInDestination) })

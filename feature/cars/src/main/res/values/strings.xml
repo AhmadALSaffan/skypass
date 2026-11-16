@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cars_title">Rent a car</string>
+    <string name="cars_pickup">Pick-up</string>
+    <string name="cars_dropoff">Drop-off</string>
+    <string name="cars_same_as_pickup">Same as pick-up</string>
+    <string name="cars_from">From</string>
+    <string name="cars_until">Until</string>
+    <string name="cars_same_return">Return to same location</string>
+    <string name="cars_or_similar">or similar · %1$d seats · %2$s · %3$s</string>
+    <plurals name="cars_bags">
+        <item quantity="one">%d bag</item>
+        <item quantity="other">%d bags</item>
+    </plurals>
+    <string name="cars_per_day">/ day</string>
+    <string name="cars_supplier_free">%1$s · Free cancellation</string>
+    <string name="cars_select">Select</string>
+    <string name="cars_selected">Selected</string>
+    <plurals name="cars_days">
+        <item quantity="one">%1$s · %2$d day</item>
+        <item quantity="other">%1$s · %2$d days</item>
+    </plurals>
+    <string name="cars_one_way_fee">Includes %1$s one-way fee</string>
+    <string name="cars_reserve">Reserve car</string>
+    <string name="cars_empty">No cars of this type here. Try another type.</string>
+    <string name="cars_offline_title">Can\'t load cars</string>
+    <string name="cars_offline_body">Check your connection and try again.</string>
+    <string name="cars_retry">Try again</string>
+    <string name="cars_pick_pickup">Pick-up airport</string>
+    <string name="cars_pick_dropoff">Return the car to</string>
+    <string name="cars_search_airport">Search airports</string>
+    <string name="cars_no_airport">No airport matches “%1$s”.</string>
+    <string name="cars_pick_dates">Pick-up and return</string>
+    <string name="cars_done">Done</string>
+    <string name="cars_cancel">Cancel</string>
+    <string name="cars_problem_past">Pick-up can\'t be in the past.</string>
+    <string name="cars_problem_order">Return the car after you pick it up.</string>
+    <string name="cars_problem_long">Rentals can be up to 30 days.</string>
+    <string name="cars_reserved">Your car is reserved</string>
+    <string name="cars_reserved_body">Reservation %1$s · %2$s</string>
+    <string name="cars_reserved_pickup">Pick up %1$s at %2$s</string>
+    <string name="cars_error_dates">Those dates don\'t work. Change them and try again.</string>
+    <string name="cars_error_network">No connection. Nothing was booked; try again.</string>
+    <string name="cars_error_unknown">That didn\'t work. Nothing was booked; try again.</string>
+</resources>

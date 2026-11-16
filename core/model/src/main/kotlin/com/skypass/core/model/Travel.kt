@@ -202,3 +202,58 @@ enum class HotelFilter(val label: String, val matches: (Hotel) -> Boolean) {
 data class HotelReservation(val reference: String, val totalUsd: Int, val nights: Int)
 
 enum class ReservationError { InvalidDates, TooManyGuests, Network, Unknown }
+
+/** The board's car type chips, in order. */
+enum class CarType(val label: String) {
+    Compact("Compact"), SUV("SUV"), Electric("Electric"), Premium("Premium");
+
+    companion object {
+        fun fromApi(value: String): CarType = entries.firstOrNull { it.label.equals(value, ignoreCase = true) } ?: Compact
+    }
+}
+
+data class Car(
+    val id: String,
+    val locationCode: String,
+    val name: String,
+    val type: CarType,
+    val seats: Int,
+    val bags: Int,
+    val transmission: String,
+    val pricePerDayUsd: Int,
+    val supplier: String,
+    val freeCancellation: Boolean,
+    /** Pastel ARGB behind the car, e.g. 0xFFF9DCD2. */
+    val stageColor: Long,
+    /** "cars/kia-cerato.png": which bundled picture to show. */
+    val imagePath: String,
+)
+
+/** Where a rental starts or ends: an airport, or a city address. */
+data class RentalPlace(val label: String, val airportCode: String? = null)
+
+/** Pick-up and drop-off, as on the board's trip card. Times are the airport's local time. */
+data class Rental(
+    val pickup: RentalPlace,
+    val dropoff: RentalPlace,
+    val pickupAt: java.time.LocalDateTime,
+    val dropoffAt: java.time.LocalDateTime,
+) {
+    val sameReturn: Boolean get() = dropoff == pickup
+
+    /** Started 24-hour periods: Fri 14:00 to Fri 10:00 a week later is 7 days. */
+    val days: Int
+        get() {
+            val minutes = java.time.Duration.between(pickupAt, dropoffAt).toMinutes()
+            return ((minutes + MINUTES_PER_DAY - 1) / MINUTES_PER_DAY).toInt()
+        }
+
+    companion object {
+        private const val MINUTES_PER_DAY = 24 * 60L
+        const val MAX_DAYS = 30
+        /** Matches the server's fee for dropping the car somewhere else. */
+        const val ONE_WAY_FEE_USD = 49
+    }
+}
+
+data class CarReservation(val reference: String, val totalUsd: Int, val days: Int, val oneWayFeeUsd: Int)
